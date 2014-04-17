@@ -101,8 +101,8 @@
             }
         } else {
             // Deal with mouse events too
-            this[99] = new SingleGesture(this);
-            this[99].start(evt.nativeEvent);
+            this['mouse'] = new SingleGesture(this);
+            this['mouse'].start(evt.nativeEvent);
         }
     };
 
@@ -115,7 +115,7 @@
             }
         } else {
             // Deal with mouse events too
-            if(this[99] instanceof SingleGesture) this[99].move(evt.nativeEvent);
+            if(this['mouse'] instanceof SingleGesture) this['mouse'].move(evt.nativeEvent);
         }
     };
 
@@ -129,8 +129,8 @@
             }
         } else {
             // Deal with mouse events too
-            this[99].end(evt.nativeEvent);
-            delete this[99];
+            this['mouse'].end(evt.nativeEvent);
+            delete this['mouse'];
         }
     };
 

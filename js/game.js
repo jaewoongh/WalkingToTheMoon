@@ -43,7 +43,7 @@ var game;
 
 		// Set up a debug canvas
 		this.debugCanvas = document.createElement('canvas');
-		this.debugCanvas.setAttribute('style', 'position:absolute; z-index:2;');
+		this.debugCanvas.setAttribute('style', 'position:absolute; z-index:0;');
 		this.debugCanvas.id = 'debugCanvas';
 		this.debugCanvas.width = window.innerWidth;
 		this.debugCanvas.height = window.innerHeight;
@@ -95,6 +95,7 @@ var game;
 		║  │ ││ │├─┘
 		╩═╝└─┘└─┘┴  	*/
 	p.onTick = function() {
+		this.box2d.update();
 		this.testStage.update();
 		this.basicGesture.run();
 	};
@@ -104,7 +105,29 @@ var game;
 		╠═╣├─┤│││ │││  ├┤    │ │ ││ ││  ├─┤├┤ └─┐
 		╩ ╩┴ ┴┘└┘─┴┘┴─┘└─┘   ┴ └─┘└─┘└─┘┴ ┴└─┘└─┘	*/
 	p.handleGesture = function(evt) {
-
+		switch(evt.type) {
+			case 'gesturetap':
+				var enemy = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
+				enemy.x = evt.detail.x;
+				enemy.y = evt.detail.y;
+				enemy.regX = enemy.image.width * 0.5;
+				enemy.regY = enemy.image.height * 0.5;
+				enemy.snapToPixel = true;
+				this.box2d.createCircle(enemy, {
+					dia: 	 	 enemy.image.width*0.55,
+					density: 	 1,
+					friction:	 0.5,
+					restitution: 0.5
+				});
+				this.testStage.addChild(enemy);
+				break;
+			case 'gestureswipe':
+				break;
+			case 'gesturehold':
+				break;
+			case 'gestureholdend':
+				break;
+		}
 	};
 
 
