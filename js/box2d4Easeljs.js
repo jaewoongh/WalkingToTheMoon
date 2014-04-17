@@ -17,6 +17,10 @@
     }
     var p = Box2d4Easeljs.prototype;
 
+
+    /*  ╔═╗┌┬┐┌─┐┌┬┐┬┌─┐  ╔═╗┬  ┬┌─┐┌─┐┌─┐┌─┐
+        ╚═╗ │ ├─┤ │ ││    ╠═╣│  │├─┤└─┐├┤ └─┐
+        ╚═╝ ┴ ┴ ┴ ┴ ┴└─┘  ╩ ╩┴─┘┴┴ ┴└─┘└─┘└─┘   */
     var b2Vec2 = Box2D.Common.Math.b2Vec2;
     var b2BodyDef = Box2D.Dynamics.b2BodyDef;
     var b2Body = Box2D.Dynamics.b2Body;
@@ -27,6 +31,10 @@
     var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
     var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
+
+    /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
+        ║││││ │ │├─┤│  │┌─┘├┤ 
+        ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
     p.initialize = function(mother, option) {
         this.mother = mother;
         option = option || {};
@@ -72,6 +80,11 @@
         this.world.SetDebugDraw(this.debugDraw);
     };
 
+
+    /*  ╔═╗┌─┐┌┬┐┌─┐┬─┐  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
+        ╠═╣│   │ │ │├┬┘  │││├┤  │ ├─┤│ │ ││└─┐
+        ╩ ╩└─┘ ┴ └─┘┴└─  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘  */
+
     // Actor object: be aware of context when calling this
     p.actorObject = function(b2d, body, skin) {
         this.body = body;
@@ -91,6 +104,11 @@
         stage.removeChild(actor.skin);
         this.actors.splice(this.actors.indexOf(actor), 1);
     };
+
+
+    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
+        ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐
+        ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
 
     // Create and add circle
     p.createCircle = function(skin, option) {
@@ -115,6 +133,11 @@
         // Return the thing so that it can be tracked
         return thing;
     }
+
+
+    /*  ╦ ╦┌─┐┌┬┐┌─┐┌┬┐┌─┐   ┬   ┌─┐┌─┐┬ ┬┌─┐┌─┐
+        ║ ║├─┘ ││├─┤ │ ├┤   ┌┼─  ├─┘├─┤│ │└─┐├┤ 
+        ╚═╝┴  ─┴┘┴ ┴ ┴ └─┘  └┘   ┴  ┴ ┴└─┘└─┘└─┘  */
 
     // Box2d update function
     // Delta time is used to avoid differences in simulation if frame rate drops

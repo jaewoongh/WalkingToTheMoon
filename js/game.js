@@ -139,6 +139,7 @@ var game;
         ╠═╣├─┤│││ │││  ├┤    │ │ ││ ││  ├─┤├┤ └─┐
         ╩ ╩┴ ┴┘└┘─┴┘┴─┘└─┘   ┴ └─┘└─┘└─┘┴ ┴└─┘└─┘   */
     p.handleGesture = function(evt) {
+        console.dir(evt.detail.easelEvent);
         switch(evt.type) {
             case 'gesturetap':
                 var enemy = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();

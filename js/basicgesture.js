@@ -57,6 +57,10 @@
         }
  */
 
+
+/*  ╔╗ ┌─┐┌─┐┬┌─┐╔═╗┌─┐┌─┐┌┬┐┬ ┬┬─┐┌─┐  ┌─┐┬  ┌─┐┌─┐┌─┐
+    ╠╩╗├─┤└─┐││  ║ ╦├┤ └─┐ │ │ │├┬┘├┤   │  │  ├─┤└─┐└─┐
+    ╚═╝┴ ┴└─┘┴└─┘╚═╝└─┘└─┘ ┴ └─┘┴└─└─┘  └─┘┴─┘┴ ┴└─┘└─┘ */
 (function(scope) {
     // BasicGesture is the main class that need to be run() on every tick
     // It creates and stores SingleGesture objects to keep track of many touches
@@ -65,6 +69,10 @@
     }
     var p = BasicGesture.prototype;
 
+
+    /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
+        ║││││ │ │├─┤│  │┌─┘├┤ 
+        ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
     p.initialize = function(stage) {
         // Add event listeners to the stage
         this.stage = stage;
@@ -84,6 +92,10 @@
         this.swipeThreshold = options.swipeThreshold;
     };
 
+
+    /*  ╦═╗┬ ┬┌┐┌
+        ╠╦╝│ ││││
+        ╩╚═└─┘┘└┘   */
     p.run = function() {
         // Should be run on every tick
         for(var i in this) {
@@ -91,8 +103,13 @@
         }
     };
 
+
+    /*  ╦ ╦┌─┐┌┐┌┌┬┐┬  ┌─┐  ┌─┐┬  ┬┌─┐┌┐┌┌┬┐┌─┐
+        ╠═╣├─┤│││ │││  ├┤   ├┤ └┐┌┘├┤ │││ │ └─┐
+        ╩ ╩┴ ┴┘└┘─┴┘┴─┘└─┘  └─┘ └┘ └─┘┘└┘ ┴ └─┘ */
     p.start = function(evt) {
         // Touch start: make new SingleGestures and start it
+        this.easelEvent = evt;
         var cTouches = evt.nativeEvent.changedTouches;
         if(cTouches) {
             for(var i = 0; i < cTouches.length; i++) {
@@ -137,10 +154,23 @@
     scope.BasicGesture = BasicGesture;
 }(window));
 
+
+/*  ╔═╗┬┌┐┌┌─┐┬  ┌─┐╔═╗┌─┐┌─┐┌┬┐┬ ┬┬─┐┌─┐  ┌─┐┬  ┌─┐┌─┐┌─┐
+    ╚═╗│││││ ┬│  ├┤ ║ ╦├┤ └─┐ │ │ │├┬┘├┤   │  │  ├─┤└─┐└─┐
+    ╚═╝┴┘└┘└─┘┴─┘└─┘╚═╝└─┘└─┘ ┴ └─┘┴└─└─┘  └─┘┴─┘┴ ┴└─┘└─┘  */
 (function(scope) {
     // SingleGesture is a class for BasicGesture under the hood but you can access to SingleGesture if you would
     // The class is to store detailed data for one touch
     function SingleGesture(mother) {
+        this.initialize(mother);
+    }
+    var p = SingleGesture.prototype;
+
+
+    /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
+        ║││││ │ │├─┤│  │┌─┘├┤ 
+        ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
+    p.initialize = function(mother) {
         this.mother = mother;
         this.touching = false;
         this.holding = false;
@@ -148,9 +178,12 @@
         this.eTime;
         this.holdThreshold = mother.holdThreshold;
         this.swipeThreshold = mother.swipeThreshold;
-    }
-    var p = SingleGesture.prototype;
+    };
 
+
+    /*  ╦═╗┬ ┬┌┐┌
+        ╠╦╝│ ││││
+        ╩╚═└─┘┘└┘   */
     p.run = function() {
         // On every tick, check and track the touch status to tell if it's hold
         if(this.touching) {
@@ -161,13 +194,16 @@
         }
     };
 
+
+    /*  ╦ ╦┌─┐┌┐┌┌┬┐┬  ┌─┐  ┌─┐┬  ┬┌─┐┌┐┌┌┬┐┌─┐
+        ╠═╣├─┤│││ │││  ├┤   ├┤ └┐┌┘├┤ │││ │ └─┐
+        ╩ ╩┴ ┴┘└┘─┴┘┴─┘└─┘  └─┘ └┘ └─┘┘└┘ ┴ └─┘ */
     p.start = function(touch) {
         // Start new touch
         this.sTime = Date.now();
         this.sx = this.x = touch.pageX;
         this.sy = this.y = touch.pageY;
         this.touching = true;
-        this.evt = touch;
     };
 
     p.move = function(touch) {
@@ -198,6 +234,10 @@
         }
     };
 
+
+    /*  ╔╦╗┬┌─┐┌─┐┌─┐┌┬┐┌─┐┬ ┬  ┌─┐┬  ┬┌─┐┌┐┌┌┬┐
+         ║║│└─┐├─┘├─┤ │ │  ├─┤  ├┤ └┐┌┘├┤ │││ │ 
+        ═╩╝┴└─┘┴  ┴ ┴ ┴ └─┘┴ ┴  └─┘ └┘ └─┘┘└┘ ┴     */
     p.sendEvent = function(type, detail) {
         // Make and dispatch event to the stage
         detail = detail || {};
@@ -211,7 +251,7 @@
                     y:           this.y,
                     swipeAngle:  detail.swipeAngle,
                     holdTime:    detail.holdTime,
-                    nativeEvent: this.evt
+                    easelEvent:  this.mother.easelEvent
                 },
                 bubbles:    true,
                 cancelable: true
