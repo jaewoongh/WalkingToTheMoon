@@ -40,9 +40,7 @@
         this.world;
         this.lastTimestamp = Date.now();
         this.fixedTimestepAccumulator = 0;
-        this.bodiesToRemove = [];
         this.actors = [];
-        this.bodies = [];
 
         // Set up initial settings
         this.world = new b2World(new b2Vec2(0, 10), true);
@@ -101,11 +99,11 @@
         fixture.density = option['density'] || 1;
         fixture.friction = option['friction'] || 0.5;
         fixture.restitution = option['restitution'] || 0.2;
-        fixture.shape = new b2CircleShape((option['dia'] || 24) / this.SCALE);
+        fixture.shape = new b2CircleShape((option['diameter'] || skin.image.width*0.55) / this.SCALE);
         var bodyDef = new b2BodyDef;
         bodyDef.type = b2Body.b2_dynamicBody;
-        bodyDef.position.x = skin.x / this.SCALE;
-        bodyDef.position.y = skin.y / this.SCALE;
+        bodyDef.position.x = option['x'] / this.SCALE;
+        bodyDef.position.y = option['y'] / this.SCALE;
         var thing = this.world.CreateBody(bodyDef);
         thing.CreateFixture(fixture);
 
@@ -113,7 +111,9 @@
         var Actor = this.actorObject.bind({});
         var actor = new Actor(this, thing, skin);
         thing.SetUserData(actor);
-        this.bodies.push(thing);
+
+        // Return the thing so that it can be tracked
+        return thing;
     }
 
     // Box2d update function
@@ -124,14 +124,6 @@
         this.fixedTimestepAccumulator += dt;
         this.lastTimestamp = now;
         while(this.fixedTimestepAccumulator >= this.STEP) {
-            // Remove bodies first
-            for(var i = 0, l = this.bodiesToRemove.length; i < l; i++) {
-                this.removeActor(this.bodiesToRemove[i].GetUserData());
-                this.bodiesToRemove[i].SetUserData(null);
-                this.world.DestroyBody(bodiesToRemove[i]);
-            }
-            bodiesToRemove = [];
-
             // Update active actors
             for(var i = 0, l = this.actors.length; i < l; i++) {
                 this.actors[i].update();
