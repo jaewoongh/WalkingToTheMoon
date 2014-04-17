@@ -66,7 +66,10 @@ var game;
 		this.assets.loadAssets(ASSETS);
 
 		// Initialize Box2D
-		this.box2d = new Box2d4Easeljs(this);
+		this.box2d = new Box2d4Easeljs(this, {
+			SCALE: 30,
+			STEP: 20
+		});
 	};
 
 
