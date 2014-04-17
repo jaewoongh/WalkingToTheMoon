@@ -34,13 +34,25 @@ var game;
 
 		// Set up a canvas
 		this.canvas = document.createElement('canvas');
+		this.canvas.setAttribute('style', 'position:absolute; z-index:1;');
 		this.canvas.id = 'gameCanvas';
 		this.canvas.width = window.innerWidth;
 		this.canvas.height = window.innerHeight;
+		this.context = this.canvas.getContext('2d');
 		document.body.appendChild(this.canvas);
+
+		// Set up a debug canvas
+		this.debugCanvas = document.createElement('canvas');
+		this.debugCanvas.setAttribute('style', 'position:absolute; z-index:2;');
+		this.debugCanvas.id = 'debugCanvas';
+		this.debugCanvas.width = window.innerWidth;
+		this.debugCanvas.height = window.innerHeight;
+		this.debugContext = this.canvas.getContext('2d');
+		document.body.appendChild(this.debugCanvas);
 
 		// Create stage and enable touch and gesture
 		this.testStage = new createjs.Stage(this.canvas);
+		this.testStage.snapPixelEnabled = true;
 		createjs.Touch.enable(this.testStage);
 		this.basicGesture = new BasicGesture(this.testStage);
 		this.testStage.addEventListener('gesturetap', this.handleGesture.bind(this));
@@ -52,6 +64,9 @@ var game;
 		this.assets = new AssetFactory();
 		this.assets.onComplete = this.assetsLoaded.bind(this);
 		this.assets.loadAssets(ASSETS);
+
+		// Initialize Box2D
+		this.box2d = new Box2d4Easeljs(this);
 	};
 
 
@@ -96,6 +111,8 @@ var game;
 	p.resizeCanvas = function(evt) {
 		this.canvas.width = window.innerWidth;
 		this.canvas.height = window.innerHeight;
+		this.debugCanvas.width = window.innerWidth;
+		this.debugCanvas.height = window.innerHeight;
 	};
 
 	scope.Game = Game;
