@@ -91,7 +91,7 @@
         ╠╩╗││  │  
         ╩ ╩┴┴─┘┴─┘  */
     p.kill = function() {
-        this.b2d.removeActor(this.actor, this.stage);
+        this.b2d.kill(this);
     };
 
     scope.RigidBody = RigidBody;

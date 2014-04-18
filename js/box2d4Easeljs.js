@@ -5,7 +5,7 @@
  | |_) | (_) >  < / __/ (_| | |__   _| | |__| (_| \__ \  __/ || \__ \
  |____/ \___/_/\_\_____\__,_|    |_|   |_____\__,_|___/\___|_|/ |___/
                                                             |__/     
-  A helper class for using Box2dWeb with Easeljs
+  A helper class for using Box2dWeb with Easeljs +RigidBody class
    Written by Jaewoong Hwang(http://jaewoong.info)
     based on from Justin Schrader's tutorial(http://www.luxanimals.com/blog/article/combining_easel_box2d)
      April 2014
@@ -49,6 +49,7 @@
         this.lastTimestamp = Date.now();
         this.fixedTimestepAccumulator = 0;
         this.actors = [];
+        this.bodiesToRemove = [];
 
         // Set up initial settings
         this.world = new b2World(new b2Vec2(0, 10), true);
@@ -135,6 +136,15 @@
     }
 
 
+    /*  ╦╔═┬┬  ┬  
+        ╠╩╗││  │  
+        ╩ ╩┴┴─┘┴─┘  */
+    p.kill = function(rigid) {
+        this.removeActor(rigid.actor, rigid.stage);
+        this.bodiesToRemove.push(rigid.body);
+    };
+
+
     /*  ╦ ╦┌─┐┌┬┐┌─┐┌┬┐┌─┐   ┬   ┌─┐┌─┐┬ ┬┌─┐┌─┐
         ║ ║├─┘ ││├─┤ │ ├┤   ┌┼─  ├─┘├─┤│ │└─┐├┤ 
         ╚═╝┴  ─┴┘┴ ┴ ┴ └─┘  └┘   ┴  ┴ ┴└─┘└─┘└─┘  */
@@ -147,6 +157,12 @@
         this.fixedTimestepAccumulator += dt;
         this.lastTimestamp = now;
         while(this.fixedTimestepAccumulator >= this.STEP) {
+            // Kill bodies first
+            for(var i = 0, l = this.bodiesToRemove.length; i < l; i++) {
+                this.bodiesToRemove[i].SetUserData(null);
+                this.world.DestroyBody(this.bodiesToRemove[i]);
+            }
+
             // Update active actors
             for(var i = 0, l = this.actors.length; i < l; i++) {
                 this.actors[i].update();
