@@ -25,10 +25,11 @@
 
     // Make a new RigidBody with given 4 parameters,
     // but I prefer to hand over only first 2 things,
-    // and chain-call methods like: new RigidBody(skin, body).at(stage).in(box2d)
+    // and chain-call methods like: new RigidBody(skin, body).on(stage).with(box2d)
     p.initialize = function(skin, body, stage, b2d) {
         this.skin = skin;
         this.body = body;
+        this.body.RigidBody = this;
         this.actor = body.GetUserData();
         this.stage = stage;
         this.b2d = b2d;
@@ -45,13 +46,13 @@
     };
 
     // Set a stage that the skin belongs to
-    p.at = function(stage) {
+    p.on = function(stage) {
         this.stage = stage;
         return this;
     };
 
     // Set a Box2d object that the body belongs to
-    p.in = function(b2d) {
+    p.with = function(b2d) {
         this.b2d = b2d;
         return this;
     };

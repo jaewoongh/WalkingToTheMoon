@@ -22,6 +22,9 @@
         ╚═╗ │ ├─┤ │ ││    ╠═╣│  │├─┤└─┐├┤ └─┐
         ╚═╝ ┴ ┴ ┴ ┴ ┴└─┘  ╩ ╩┴─┘┴┴ ┴└─┘└─┘└─┘   */
     var b2Vec2 = Box2D.Common.Math.b2Vec2;
+    var b2AABB = Box2D.Collision.b2AABB;
+    var b2Transform = Box2D.Common.Math.b2Transform;
+    var b2Mat22 = Box2D.Common.Math.b2Mat22;
     var b2BodyDef = Box2D.Dynamics.b2BodyDef;
     var b2Body = Box2D.Dynamics.b2Body;
     var b2FixtureDef = Box2D.Dynamics.b2FixtureDef;
@@ -118,7 +121,7 @@
         fixture.density = option['density'] || 1;
         fixture.friction = option['friction'] || 0.5;
         fixture.restitution = option['restitution'] || 0.2;
-        fixture.shape = new b2CircleShape((option['diameter'] || skin.image.width*0.55) * skin.scaleY / this.SCALE);
+        fixture.shape = new b2CircleShape((option['radius'] || skin.image.width*0.55) * skin.scaleY / this.SCALE);
         var bodyDef = new b2BodyDef;
         bodyDef.type = b2Body.b2_dynamicBody;
         bodyDef.position.x = option['x'] / this.SCALE;
@@ -133,7 +136,36 @@
 
         // Return the thing so that it can be tracked
         return thing;
-    }
+    };
+
+
+    /*  ╔═╗ ┬ ┬┌─┐┬─┐┬ ┬  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
+        ║═╬╗│ │├┤ ├┬┘└┬┘  │││├┤  │ ├─┤│ │ ││└─┐
+        ╚═╝╚└─┘└─┘┴└─ ┴   ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘ */
+    p.pickRigidBody = function(x, y, size) {
+        var pickedRigidBody = null;
+        size = size || 0.01;
+        size /= this.SCALE;
+
+        var x = x / this.SCALE;
+        var y = y / this.SCALE;
+        var aabb = new b2AABB();
+        aabb.lowerBound.Set(x - size, y - size);
+        aabb.upperBound.Set(x + size, y + size);
+
+        this.world.QueryAABB(
+            function(fixture) {
+                var body = fixture.GetBody();
+                if(body.GetType() != b2Body.b2_staticBody && body.RigidBody) {
+                    pickedRigidBody = body.RigidBody;
+                    return false;
+                } else {
+                    return true;
+                }
+            }, aabb);
+
+        return pickedRigidBody;
+    };
 
 
     /*  ╦╔═┬┬  ┬  

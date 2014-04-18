@@ -23,6 +23,7 @@ var game;
     }
     var p = Game.prototype;
     var debug = true;
+    var debugBox2d = false;
 
     var targetWidth = 1080;
     var targetHeight = 1920;
@@ -128,6 +129,10 @@ var game;
         this.box2d.update();
         this.testStage.update();
         this.basicGesture.run();
+
+        if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()) == 0) {
+            this.createTestEnemy2();
+        }
     };
 
     p.removeOffBoundaries = function(array) {
@@ -152,7 +157,9 @@ var game;
             case 'gesturetap':
                 break;
             case 'gestureswipe':
-                this.createTestEnemy(evt.detail);
+                // this.createTestEnemy(evt.detail);
+                var rigid = this.box2d.pickRigidBody(evt.detail.sx, evt.detail.sy, 64);
+                if(rigid) rigid.applyForce2(evt.detail.swipeAngle, evt.detail.swipeDistance);
                 break;
             case 'gesturehold':
                 break;
@@ -168,9 +175,16 @@ var game;
     p.createTestEnemy = function(evt) {
         var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
         var body = this.createCircleObject(skin, { x: evt.sx, y: evt.sy });
-        var rigid = new RigidBody(skin, body).at(this.testStage).in(this.box2d);
+        var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
         rigid.applyForce2(evt.swipeAngle, evt.swipeDistance);
-        this.testEnemies.push(new RigidBody(skin, body).at(this.testStage).in(this.box2d));
+        this.testEnemies.push(rigid);
+    };
+
+    p.createTestEnemy2 = function() {
+        var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
+        var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1 });
+        var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+        this.testEnemies.push(rigid);
     };
 
 
