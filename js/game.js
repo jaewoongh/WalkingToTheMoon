@@ -24,6 +24,9 @@ var game;
     var p = Game.prototype;
     var debug = true;
 
+    var targetWidth = 1080;
+    var targetHeight = 1920;
+
 
     /*  ╔═╗┌─┐┌─┐┌─┐┌┬┐┌─┐
         ╠═╣└─┐└─┐├┤  │ └─┐
@@ -56,7 +59,13 @@ var game;
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this.context = this.canvas.getContext('2d');
+        this.context['imageSmoothingEnabled'] = false;
+        this.context['mozImageSmoothingEnabled'] = false;
+        this.context['oImageSmoothingEnabled'] = false;
+        this.context['webkitImageSmoothingEnabled'] = false;
+        this.context['msImageSmoothingEnabled'] = false;
         document.body.appendChild(this.canvas);
+        this.scale = this.canvas.height / targetHeight;
 
         // Set up a debug canvas
         this.debugCanvas = document.createElement('canvas');
@@ -126,7 +135,7 @@ var game;
             var one = array[i];
             if (one.skin.x + one.skin.image.width*0.5 < 0 ||
                 one.skin.x - one.skin.image.width*0.5 >= this.canvas.width ||
-                one.skin.y + one.skin.image.height*0.5 < 0 ||
+                one.skin.y + one.skin.image.height*0.5 < -this.canvas.height*0.2 ||
                 one.skin.y - one.skin.image.height*0.5 >= this.canvas.width) {
                 one.kill();
                 array.splice(i, 1);
@@ -176,6 +185,8 @@ var game;
         thing.y = option['y'];
         thing.regX = thing.image.width * 0.5;
         thing.regY = thing.image.height * 0.5;
+        thing.scaleX = this.scale;
+        thing.scaleY = this.scale;
         thing.snapToPixel = true;
         this.testStage.addChild(thing);
         return this.box2d.createCircle(thing, option);
@@ -199,6 +210,6 @@ window.onload = function() {
     game = new Game();
 };
 
-window.onresize = function() {
-    game.resizeCanvas();
-}
+// window.onresize = function() {
+//     game.resizeCanvas();
+// }

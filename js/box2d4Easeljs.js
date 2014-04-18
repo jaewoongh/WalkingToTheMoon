@@ -60,11 +60,11 @@
         floorFixture.friction = 0.5;
         floorFixture.restitution = 0.5;
         floorFixture.shape = new b2PolygonShape;
-        floorFixture.shape.SetAsBox(mother.canvas.width / this.SCALE, mother.canvas.height*0.01 / this.SCALE);
+        floorFixture.shape.SetAsBox(mother.canvas.width * 0.6 / this.SCALE, mother.canvas.height*0.05 / this.SCALE);
         var floorBodyDef = new b2BodyDef;
         floorBodyDef.type = b2Body.b2_staticBody;
-        floorBodyDef.position.x = 0 / this.SCALE;
-        floorBodyDef.position.y = mother.canvas.height * 0.99 / this.SCALE;
+        floorBodyDef.position.x = mother.canvas.width * 0.5 / this.SCALE;
+        floorBodyDef.position.y = mother.canvas.height * 1.05 / this.SCALE;
         var floor = this.world.CreateBody(floorBodyDef);
         floor.CreateFixture(floorFixture);
     };
@@ -117,7 +117,7 @@
         fixture.density = option['density'] || 1;
         fixture.friction = option['friction'] || 0.5;
         fixture.restitution = option['restitution'] || 0.2;
-        fixture.shape = new b2CircleShape((option['diameter'] || skin.image.width*0.55) / this.SCALE);
+        fixture.shape = new b2CircleShape((option['diameter'] || skin.image.width*0.55) * skin.scaleY / this.SCALE);
         var bodyDef = new b2BodyDef;
         bodyDef.type = b2Body.b2_dynamicBody;
         bodyDef.position.x = option['x'] / this.SCALE;
