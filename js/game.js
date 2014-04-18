@@ -169,12 +169,12 @@ var game;
 
                 // Test#3: Swipe picks enemies on its trail and throw them
                 var rigid, targetX, targetY;
-                for(var i = 0, j = 0; i < 1; i += 0.1, j += 0.1) {
+                for(var i = -0.2, j = -0.2; i < 1; i += 0.1, j += 0.1) {
                     targetX = evt.detail.sx + (evt.detail.x - evt.detail.sx) * i;
                     targetY = evt.detail.sy + (evt.detail.y - evt.detail.sy) * i;
                     regid = null;
                     rigid = this.box2d.pickRigidBody(targetX, targetY, this.canvas.height * 0.05);
-                    if(rigid) rigid.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*(1-i)*0.1, this.canvas.height*0.01));
+                    if(rigid) rigid.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*Math.pow(1-i, 2)*0.1, this.canvas.height*0.01));
                 }
                 break;
             case 'gesturehold':
