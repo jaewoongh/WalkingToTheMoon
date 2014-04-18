@@ -245,13 +245,14 @@
             type,
             {
                 detail: {
-                    sx:          this.sx,
-                    sy:          this.sy,
-                    x:           this.x,
-                    y:           this.y,
-                    swipeAngle:  detail.swipeAngle,
-                    holdTime:    detail.holdTime,
-                    easelEvent:  this.mother.easelEvent
+                    sx:            this.sx,
+                    sy:            this.sy,
+                    x:             this.x,
+                    y:             this.y,
+                    swipeAngle:    detail.swipeAngle,
+                    swipeDistance: detail.swipeDistance,
+                    holdTime:      detail.holdTime,
+                    easelEvent:    this.mother.easelEvent
                 },
                 bubbles:    true,
                 cancelable: true

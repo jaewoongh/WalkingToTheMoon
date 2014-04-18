@@ -124,11 +124,11 @@ var game;
     p.removeOffBoundaries = function(array) {
         for(var i = array.length-1; i >= 0; i--) {
             var one = array[i];
-            if (one.x + one.image.width*0.5 < 0 ||
-                one.x - one.image.width*0.5 >= this.canvas.width ||
-                one.y + one.image.height*0.5 < 0 ||
-                one.y - one.image.height*0.5 >= this.canvas.width) {
-                this.box2d.removeActor(one['actor'], this.testStage);
+            if (one.skin.x + one.skin.image.width*0.5 < 0 ||
+                one.skin.x - one.skin.image.width*0.5 >= this.canvas.width ||
+                one.skin.y + one.skin.image.height*0.5 < 0 ||
+                one.skin.y - one.skin.image.height*0.5 >= this.canvas.width) {
+                one.kill();
                 array.splice(i, 1);
             }
         }
@@ -139,20 +139,11 @@ var game;
         ╠═╣├─┤│││ │││  ├┤    │ │ ││ ││  ├─┤├┤ └─┐
         ╩ ╩┴ ┴┘└┘─┴┘┴─┘└─┘   ┴ └─┘└─┘└─┘┴ ┴└─┘└─┘   */
     p.handleGesture = function(evt) {
-        console.dir(evt.detail.easelEvent);
         switch(evt.type) {
             case 'gesturetap':
-                var enemy = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
-                var rigid = this.createCircleObject(
-                    enemy,
-                    {   x: evt.detail.x,
-                        y: evt.detail.y,
-                    }
-                );
-                enemy['actor'] = rigid.GetUserData(rigid);
-                this.testEnemies.push(enemy);
                 break;
             case 'gestureswipe':
+                this.createTestEnemy(evt.detail);
                 break;
             case 'gesturehold':
                 break;
@@ -162,9 +153,21 @@ var game;
     };
 
 
-    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ╔╦╗┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
-        ║  ├┬┘├┤ ├─┤ │ ││ ││││  ║║║├┤  │ ├─┤│ │ ││└─┐
-        ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ╩ ╩└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
+    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┌─┐  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
+        ║  ├┬┘├┤ ├─┤ │ ├┤   │││├┤  │ ├─┤│ │ ││└─┐
+        ╚═╝┴└─└─┘┴ ┴ ┴ └─┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
+    p.createTestEnemy = function(evt) {
+        var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
+        var body = this.createCircleObject(skin, { x: evt.sx, y: evt.sy });
+        var rigid = new RigidBody(skin, body).at(this.testStage).in(this.box2d);
+        rigid.applyForce2(evt.swipeAngle, evt.swipeDistance);
+        this.testEnemies.push(new RigidBody(skin, body).at(this.testStage).in(this.box2d));
+    };
+
+
+    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┌─┐  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐       ┌┐ ┌─┐─┐ ┬╔═╗┌┬┐
+        ║  ├┬┘├┤ ├─┤ │ ├┤   │││├┤  │ ├─┤│ │ ││└─┐  ───  ├┴┐│ │┌┴┬┘╔═╝ ││
+        ╚═╝┴└─└─┘┴ ┴ ┴ └─┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘       └─┘└─┘┴ └─╚═╝─┴┘    */
 
     // Create circle object with image and options(necessary)
     // Options: x, y, diameter, density, friction, restitution
@@ -179,15 +182,15 @@ var game;
     };
 
 
-    /*  ╦═╗┌─┐┌─┐┬┌─┐┌─┐  ┌─┐┌─┐┌┐┌┬  ┬┌─┐┌─┐
-        ╠╦╝├┤ └─┐│┌─┘├┤   │  ├─┤│││└┐┌┘├─┤└─┐
-        ╩╚═└─┘└─┘┴└─┘└─┘  └─┘┴ ┴┘└┘ └┘ ┴ ┴└─┘   */
-    p.resizeCanvas = function(evt) {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.debugCanvas.width = window.innerWidth;
-        this.debugCanvas.height = window.innerHeight;
-    };
+    // /*  ╦═╗┌─┐┌─┐┬┌─┐┌─┐  ┌─┐┌─┐┌┐┌┬  ┬┌─┐┌─┐
+    //     ╠╦╝├┤ └─┐│┌─┘├┤   │  ├─┤│││└┐┌┘├─┤└─┐
+    //     ╩╚═└─┘└─┘┴└─┘└─┘  └─┘┴ ┴┘└┘ └┘ ┴ ┴└─┘   */
+    // p.resizeCanvas = function(evt) {
+    //     this.canvas.width = window.innerWidth;
+    //     this.canvas.height = window.innerHeight;
+    //     this.debugCanvas.width = window.innerWidth;
+    //     this.debugCanvas.height = window.innerHeight;
+    // };
 
     scope.Game = Game;
 }(window));
