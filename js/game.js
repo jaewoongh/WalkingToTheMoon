@@ -174,7 +174,7 @@ var game;
                     targetY = evt.detail.sy + (evt.detail.y - evt.detail.sy) * i;
                     regid = null;
                     rigid = this.box2d.pickRigidBody(targetX, targetY, this.canvas.height * 0.05);
-                    if(rigid) rigid.applyForce2(evt.detail.swipeAngle, Math.max(Math.pow(evt.detail.swipeDistance*(1-i), 2), this.canvas.height*0.1));
+                    if(rigid) rigid.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*(1-i)*0.1, this.canvas.height*0.01));
                 }
                 break;
             case 'gesturehold':

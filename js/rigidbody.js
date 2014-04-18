@@ -73,12 +73,23 @@
         var dx = Math.cos(theta) * distance / this.b2d.SCALE;
         var dy = Math.sin(theta) * distance / this.b2d.SCALE;
         var force = new Box2D.Common.Math.b2Vec2(dx, dy);
-        this.applyForce(force, point);
+        this.applyImpulse(force, point);
         return this;
     };
 
     p.applyImpulse = function(impulse, point) {
         this.body.ApplyImpulse(impulse, point);
+        return this;
+    };
+
+    // Apply impulse with angle and distance from the center of mass
+    p.applyImpulse2 = function(angle, distance) {
+        var point = this.body.GetWorldCenter();
+        var theta = angle * Math.PI * 2 / 360;
+        var dx = Math.cos(theta) * distance / this.b2d.SCALE;
+        var dy = Math.sin(theta) * distance / this.b2d.SCALE;
+        var impulse = new Box2D.Common.Math.b2Vec2(dx, dy);
+        this.applyImpulse(impulse, point);
         return this;
     };
 
