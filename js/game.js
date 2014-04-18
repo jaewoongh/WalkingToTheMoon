@@ -82,6 +82,7 @@ var game;
         this.testStage.snapPixelEnabled = true;
         createjs.Touch.enable(this.testStage);
         this.basicGesture = new BasicGesture(this.testStage);
+        this.testStage.addEventListener('gesturestart', this.handleGesture.bind(this));
         this.testStage.addEventListener('gesturetap', this.handleGesture.bind(this));
         this.testStage.addEventListener('gestureswipe', this.handleGesture.bind(this));
         this.testStage.addEventListener('gesturehold', this.handleGesture.bind(this));
@@ -130,7 +131,7 @@ var game;
         this.testStage.update();
         this.basicGesture.run();
 
-        if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()) == 0) {
+        if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
             this.createTestEnemy2();
         }
     };
@@ -154,12 +155,27 @@ var game;
         ╩ ╩┴ ┴┘└┘─┴┘┴─┘└─┘   ┴ └─┘└─┘└─┘┴ ┴└─┘└─┘   */
     p.handleGesture = function(evt) {
         switch(evt.type) {
+            case 'gesturestart':
+                break;
             case 'gesturetap':
                 break;
             case 'gestureswipe':
+                // // Test#1: Swipe generates enemy
                 // this.createTestEnemy(evt.detail);
-                var rigid = this.box2d.pickRigidBody(evt.detail.sx, evt.detail.sy, 64);
-                if(rigid) rigid.applyForce2(evt.detail.swipeAngle, evt.detail.swipeDistance);
+
+                // // Test#2: Swipe picks an enemy and throw it
+                // var rigid = this.box2d.pickRigidBody(evt.detail.sx, evt.detail.sy, this.canvas.height * 0.1);
+                // if(rigid) rigid.applyForce2(evt.detail.swipeAngle, Math.max(Math.pow(evt.detail.swipeDistance, 2), this.canvas.height*0.2));
+
+                // Test#3: Swipe picks enemies on its trail and throw them
+                var rigid, targetX, targetY;
+                for(var i = 0, j = 0; i < 1; i += 0.1, j += 0.1) {
+                    targetX = evt.detail.sx + (evt.detail.x - evt.detail.sx) * i;
+                    targetY = evt.detail.sy + (evt.detail.y - evt.detail.sy) * i;
+                    regid = null;
+                    rigid = this.box2d.pickRigidBody(targetX, targetY, this.canvas.height * 0.05);
+                    if(rigid) rigid.applyForce2(evt.detail.swipeAngle, Math.max(Math.pow(evt.detail.swipeDistance*(1-i), 2), this.canvas.height*0.1));
+                }
                 break;
             case 'gesturehold':
                 break;

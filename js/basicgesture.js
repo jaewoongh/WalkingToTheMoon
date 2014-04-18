@@ -14,6 +14,7 @@
     There seems to be an issue of using this fix though; stagemousemove event never fires
  
     List of Events:
+        Event { type: 'gesturestart',   detail: { sx: [START X], sy: [START Y], x: [CURRENT X], y: [CURRENT Y] } }
         Event { type: 'gesturetap',     detail: { sx: [START X], sy: [START Y], x: [CURRENT X], y: [CURRENT Y] } }
         Event { type: 'gestureswipe',   detail: { sx: [START X], sy: [START Y], x: [CURRENT X], y: [CURRENT Y], swipeAngle: [SWIPE ANGLE IN DEGREES], swipeDistance: [SQUARED SWIPE DISTANCE] } }
         Event { type: 'gesturehold',    detail: { sx: [START X], sy: [START Y], x: [CURRENT X], y: [CURRENT Y], holdTime:   [HOLDING TIME IN MILLISECONDS] } }
@@ -26,6 +27,7 @@
  
         // Make BasicGesture for the stage and attach event listeners
         this.basicGesture = new BasicGesture(this.stage);
+        this.stage.addEventListener('gesturestart',   this.handleGesture.bind(this));
         this.stage.addEventListener('gesturetap',     this.handleGesture.bind(this));
         this.stage.addEventListener('gestureswipe',   this.handleGesture.bind(this));
         this.stage.addEventListener('gesturehold',    this.handleGesture.bind(this));
@@ -146,8 +148,10 @@
             }
         } else {
             // Deal with mouse events too
-            this['mouse'].end(evt.nativeEvent);
-            delete this['mouse'];
+            if(this['mouse']){
+                this['mouse'].end(evt.nativeEvent);
+                delete this['mouse'];
+            }
         }
     };
 
@@ -204,6 +208,8 @@
         this.sx = this.x = touch.pageX;
         this.sy = this.y = touch.pageY;
         this.touching = true;
+
+        this.sendEvent('gesturestart');
     };
 
     p.move = function(touch) {

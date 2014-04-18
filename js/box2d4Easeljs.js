@@ -55,7 +55,7 @@
         this.bodiesToRemove = [];
 
         // Set up initial settings
-        this.world = new b2World(new b2Vec2(0, 10), true);
+        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 1), true);
         this.addDebug();
 
         // Add floor for the sake of test
@@ -147,18 +147,21 @@
         size = size || 0.01;
         size /= this.SCALE;
 
-        var x = x / this.SCALE;
-        var y = y / this.SCALE;
+        var x = x;
+        var y = y;
         var aabb = new b2AABB();
-        aabb.lowerBound.Set(x - size, y - size);
-        aabb.upperBound.Set(x + size, y + size);
+        aabb.lowerBound.Set(x-size < 0 ? 0 : x-size, y-size < 0 ? 0 : y-size);
+        aabb.upperBound.Set(x+size >= this.mother.canvas.width ? this.mother.canvas.width : x+size,
+                            y+size >= this.mother.canvas.height ? this.mother.canvas.height : y+size);
+        aabb.lowerBound.Multiply(1 / this.SCALE);
+        aabb.upperBound.Multiply(1 / this.SCALE);
 
         this.world.QueryAABB(
             function(fixture) {
                 var body = fixture.GetBody();
                 if(body.GetType() != b2Body.b2_staticBody && body.RigidBody) {
                     pickedRigidBody = body.RigidBody;
-                    return false;
+                    return true;    // continue!
                 } else {
                     return true;
                 }
