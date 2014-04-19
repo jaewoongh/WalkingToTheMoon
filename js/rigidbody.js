@@ -43,8 +43,8 @@
             this.width = this.skin.image.width;
             this.height = this.skin.image.height;
         } else if(this.skin instanceof createjs.Sprite) {
-            this.width = this.skin.spriteSheet.getFrame(0).rect.width * 0.5;
-            this.height = this.skin.spriteSheet.getFrame(0).rect.height * 0.5;
+            this.width = this.skin.spriteSheet.getFrameBounds(0).width * 0.5;
+            this.height = this.skin.spriteSheet.getFrameBounds(0).height * 0.5;
         }
 
         return this;
@@ -101,6 +101,17 @@
     p.applyTorque = function(torque) {
         this.body.ApplyTorque(torque);
         return this;
+    };
+
+    p.chase = function(target, option) {
+        var dest = target.body.GetWorldCenter().Copy();
+        var start = this.body.GetWorldCenter();
+        dest.Subtract(start);
+        dest.Normalize();
+        dest.Multiply(option.uniformForce['force']);
+        if(option['uniformForce']) {
+            this.applyForce(dest, this.body.GetWorldCenter());
+        }
     };
 
 

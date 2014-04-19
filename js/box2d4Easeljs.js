@@ -55,22 +55,22 @@
         this.bodiesToRemove = [];
 
         // Set up initial settings
-        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 2), true);
+        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 1), true);
         this.addDebug();
 
-        // Add floor for the sake of test
-        var floorFixture = new b2FixtureDef;
-        floorFixture.density = 1;
-        floorFixture.friction = 0.5;
-        floorFixture.restitution = 0.5;
-        floorFixture.shape = new b2PolygonShape;
-        floorFixture.shape.SetAsBox(mother.canvas.width * 0.6 / this.SCALE, mother.canvas.height*0.05 / this.SCALE);
-        var floorBodyDef = new b2BodyDef;
-        floorBodyDef.type = b2Body.b2_staticBody;
-        floorBodyDef.position.x = mother.canvas.width * 0.5 / this.SCALE;
-        floorBodyDef.position.y = mother.canvas.height * 1.05 / this.SCALE;
-        var floor = this.world.CreateBody(floorBodyDef);
-        floor.CreateFixture(floorFixture);
+        // // Add floor for the sake of test
+        // var floorFixture = new b2FixtureDef;
+        // floorFixture.density = 1;
+        // floorFixture.friction = 0.5;
+        // floorFixture.restitution = 0.5;
+        // floorFixture.shape = new b2PolygonShape;
+        // floorFixture.shape.SetAsBox(mother.canvas.width * 0.6 / this.SCALE, mother.canvas.height*0.05 / this.SCALE);
+        // var floorBodyDef = new b2BodyDef;
+        // floorBodyDef.type = b2Body.b2_staticBody;
+        // floorBodyDef.position.x = mother.canvas.width * 0.5 / this.SCALE;
+        // floorBodyDef.position.y = mother.canvas.height * 1.05 / this.SCALE;
+        // var floor = this.world.CreateBody(floorBodyDef);
+        // floor.CreateFixture(floorFixture);
     };
 
     // Box2d debugger
@@ -124,10 +124,14 @@
         if(skin instanceof createjs.Bitmap) {
             fixture.shape = new b2CircleShape((option['radius'] || skin.image.width * 0.55 * skin.scaleY) / this.SCALE);
         } else if(skin instanceof createjs.Sprite) {
-            fixture.shape = new b2CircleShape((option['radius'] || skin.spriteSheet.getFrame(0).rect.width * 0.55 * skin.scaleY) / this.SCALE);
+            fixture.shape = new b2CircleShape((option['radius'] || skin.spriteSheet.getFrameBounds(0).width * 0.55 * skin.scaleY) / this.SCALE);
         }
         var bodyDef = new b2BodyDef;
-        bodyDef.type = b2Body.b2_dynamicBody;
+        if(option['static']) {
+            bodyDef.type = b2Body.b2_staticBody;
+        } else {
+            bodyDef.type = b2Body.b2_dynamicBody;
+        }
         bodyDef.position.x = option['x'] / this.SCALE;
         bodyDef.position.y = option['y'] / this.SCALE;
         var thing = this.world.CreateBody(bodyDef);

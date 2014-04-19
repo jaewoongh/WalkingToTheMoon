@@ -45,7 +45,7 @@ var game;
 
     // Sprite sheet for test player
     var ANI_PLAYER = [
-        './assets/images/players/redboots.png'
+        './assets/images/players/heroine.png'
     ];
 
     // Combine all the assets
@@ -132,26 +132,28 @@ var game;
             animations: {
                 walk: {
                     frames: [0, 1, 2, 3],
-                    speed: 0.3
+                    speed: 0.1
                 },
                 hit: {
-                    frames: [2],
+                    frames: [1],
                 }
             }
         });
         this.aniPlayer = new createjs.Sprite(SPR_PLAYER);
 
         // Create test player
-        this.aniPlayer.x = this.canvas.width * 0.5;
-        this.aniPlayer.y = this.canvas.height * 0.8;
-        this.aniPlayer.regX = this.aniPlayer.spriteSheet.getFrameBounds(0).width * 0.5;
-        this.aniPlayer.regY = this.aniPlayer.spriteSheet.getFrameBounds(0).height * 0.5;
-        this.aniPlayer.scaleX = this.scale;
-        this.aniPlayer.scaleY = this.scale;
-        this.aniPlayer.gotoAndPlay('walk');
-        this.testStage.addChild(this.aniPlayer);
+        this.createTestPlayer();
+        // this.aniPlayer.x = this.canvas.width * 0.5;
+        // this.aniPlayer.y = this.canvas.height * 0.8;
+        // this.aniPlayer.regX = this.aniPlayer.spriteSheet.getFrameBounds(0).width * 0.5;
+        // this.aniPlayer.regY = this.aniPlayer.spriteSheet.getFrameBounds(0).height * 0.5;
+        // this.aniPlayer.scaleX = this.scale;
+        // this.aniPlayer.scaleY = this.scale;
+        // this.aniPlayer.gotoAndPlay('walk');
+        // this.testStage.addChild(this.aniPlayer);
 
         // Set Ticker
+        createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
         createjs.Ticker.setFPS(30);
         createjs.Ticker.addEventListener('tick', this.onTick.bind(this));
     };
@@ -161,6 +163,7 @@ var game;
         ║  │ ││ │├─┘
         ╩═╝└─┘└─┘┴      */
     p.onTick = function() {
+        this.doYourJobEnemies();
         this.removeOffBoundaries(this.testEnemies);
         this.box2d.update();
         this.testStage.update();
@@ -171,13 +174,23 @@ var game;
         }
     };
 
+    p.doYourJobEnemies = function() {
+        for(var i = 0; i < this.testEnemies.length; i++) {
+            this.testEnemies[i].chase(this.testPlayer, {
+                uniformForce: {
+                    force: 20 * this.scale
+                }
+            });
+        }
+    };
+
     p.removeOffBoundaries = function(array) {
         for(var i = array.length-1; i >= 0; i--) {
             var one = array[i];
-            if (one.skin.x + one.skin.image.width*0.5 < 0 ||
-                one.skin.x - one.skin.image.width*0.5 >= this.canvas.width ||
+            if (one.skin.x + one.skin.image.width*0.5 < -this.canvas.width*0.5 ||
+                one.skin.x - one.skin.image.width*0.5 >= this.canvas.width*1.5 ||
                 one.skin.y + one.skin.image.height*0.5 < -this.canvas.height*0.2 ||
-                one.skin.y - one.skin.image.height*0.5 >= this.canvas.width) {
+                one.skin.y - one.skin.image.height*0.5 >= this.canvas.height) {
                 one.kill();
                 array.splice(i, 1);
             }
@@ -220,9 +233,9 @@ var game;
     };
 
 
-    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┌─┐  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
-        ║  ├┬┘├┤ ├─┤ │ ├┤   │││├┤  │ ├─┤│ │ ││└─┐
-        ╚═╝┴└─└─┘┴ ┴ ┴ └─┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
+    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
+        ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐
+        ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
     p.createTestEnemy = function(evt) {
         var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
         var body = this.createCircleObject(skin, { x: evt.sx, y: evt.sy });
@@ -233,15 +246,27 @@ var game;
 
     p.createTestEnemy2 = function() {
         var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
-        var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1 });
+        var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
         var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
         this.testEnemies.push(rigid);
     };
 
+    p.createTestPlayer = function() {
+        var skin = this.aniPlayer;
+        var body = this.createCircleObject(skin, {
+            x: this.canvas.width * 0.5,
+            y: this.canvas.height * 0.8,
+            radius: skin.spriteSheet.getFrameBounds(0).height * this.scale * 0.3,
+            static: true
+        });
+        this.testPlayer = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+        skin.gotoAndPlay('walk');
+    };
 
-    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┌─┐  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐       ┌┐ ┌─┐─┐ ┬╔═╗┌┬┐
-        ║  ├┬┘├┤ ├─┤ │ ├┤   │││├┤  │ ├─┤│ │ ││└─┐  ───  ├┴┐│ │┌┴┬┘╔═╝ ││
-        ╚═╝┴└─└─┘┴ ┴ ┴ └─┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘       └─┘└─┘┴ └─╚═╝─┴┘    */
+
+    /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐       ┌┐ ┌─┐─┐ ┬╔═╗┌┬┐
+        ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐  ───  ├┴┐│ │┌┴┬┘╔═╝ ││
+        ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘       └─┘└─┘┴ └─╚═╝─┴┘    */
 
     // Create circle object with image and options(necessary)
     // Options: x, y, diameter, density, friction, restitution
@@ -252,14 +277,17 @@ var game;
             thing.regX = thing.image.width * 0.5;
             thing.regY = thing.image.height * 0.5;
         } else if(thing instanceof createjs.Sprite) {
-            thing.regX = thing.spriteSheet.getFrame(0).rect.width * 0.5;
-            thing.regY = thing.spriteSheet.getFrame(0).rect.height * 0.5;
+            thing.regX = thing.spriteSheet.getFrameBounds(0).width * 0.5;
+            thing.regY = thing.spriteSheet.getFrameBounds(0).height * 0.5;
         }
         thing.scaleX = this.scale;
         thing.scaleY = this.scale;
         thing.snapToPixel = true;
-        // this.testStage.addChild(thing);
-        this.testStage.addChildAt(thing, 0);
+        if(option['index']) {
+            this.testStage.addChildAt(thing, option['index']);
+        } else {
+            this.testStage.addChild(thing);
+        }
         return this.box2d.createCircle(thing, option);
     };
 
