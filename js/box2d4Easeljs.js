@@ -55,7 +55,7 @@
         this.bodiesToRemove = [];
 
         // Set up initial settings
-        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 1), true);
+        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 2), true);
         this.addDebug();
 
         // Add floor for the sake of test
@@ -121,7 +121,11 @@
         fixture.density = option['density'] || 1;
         fixture.friction = option['friction'] || 0.5;
         fixture.restitution = option['restitution'] || 0.2;
-        fixture.shape = new b2CircleShape((option['radius'] || skin.image.width*0.55) * skin.scaleY / this.SCALE);
+        if(skin instanceof createjs.Bitmap) {
+            fixture.shape = new b2CircleShape((option['radius'] || skin.image.width * 0.55 * skin.scaleY) / this.SCALE);
+        } else if(skin instanceof createjs.Sprite) {
+            fixture.shape = new b2CircleShape((option['radius'] || skin.spriteSheet.getFrame(0).rect.width * 0.55 * skin.scaleY) / this.SCALE);
+        }
         var bodyDef = new b2BodyDef;
         bodyDef.type = b2Body.b2_dynamicBody;
         bodyDef.position.x = option['x'] / this.SCALE;

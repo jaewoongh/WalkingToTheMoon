@@ -37,10 +37,15 @@
         // Aliases
         this.x = this.skin.x;
         this.y = this.skin.y;
-        this.width = this.skin.image.width;
-        this.height = this.skin.image.height;
         this.rotation = this.skin.rotation;
         this.angle = this.skin.rotation * Math.PI * 2 / 360;
+        if(this.skin instanceof createjs.Bitmap) {
+            this.width = this.skin.image.width;
+            this.height = this.skin.image.height;
+        } else if(this.skin instanceof createjs.Sprite) {
+            this.width = this.skin.spriteSheet.getFrame(0).rect.width * 0.5;
+            this.height = this.skin.spriteSheet.getFrame(0).rect.height * 0.5;
+        }
 
         return this;
     };

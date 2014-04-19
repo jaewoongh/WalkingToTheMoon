@@ -43,8 +43,13 @@ var game;
         './assets/images/enemies/e5.png'
     ];
 
+    // Sprite sheet for test player
+    var ANI_PLAYER = [
+        './assets/images/players/redboots.png'
+    ];
+
     // Combine all the assets
-    var ASSETS = [].concat(IMG_ENEMIES);
+    var ASSETS = [].concat(IMG_ENEMIES, ANI_PLAYER);
 
 
     /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
@@ -110,11 +115,41 @@ var game;
     p.assetsLoaded = function() {
         if(debug) console.log('.. assets are loaded');
 
-        // Assign images
+        // Assign images for enemies
         this.imgEnemy = [];
         for(var i = 0; i < IMG_ENEMIES.length; i++) {
             this.imgEnemy.push(new createjs.Bitmap(this.assets[IMG_ENEMIES[i]]));
         }
+
+        // Assign sprite for a player
+        var SPR_PLAYER = new createjs.SpriteSheet({
+            images: [this.assets[ANI_PLAYER]],
+            frames: {
+                height: 350,
+                width: 470,
+                count: 4
+            },
+            animations: {
+                walk: {
+                    frames: [0, 1, 2, 3],
+                    speed: 0.3
+                },
+                hit: {
+                    frames: [2],
+                }
+            }
+        });
+        this.aniPlayer = new createjs.Sprite(SPR_PLAYER);
+
+        // Create test player
+        this.aniPlayer.x = this.canvas.width * 0.5;
+        this.aniPlayer.y = this.canvas.height * 0.8;
+        this.aniPlayer.regX = this.aniPlayer.spriteSheet.getFrameBounds(0).width * 0.5;
+        this.aniPlayer.regY = this.aniPlayer.spriteSheet.getFrameBounds(0).height * 0.5;
+        this.aniPlayer.scaleX = this.scale;
+        this.aniPlayer.scaleY = this.scale;
+        this.aniPlayer.gotoAndPlay('walk');
+        this.testStage.addChild(this.aniPlayer);
 
         // Set Ticker
         createjs.Ticker.setFPS(30);
@@ -213,12 +248,18 @@ var game;
     p.createCircleObject = function(thing, option) {
         thing.x = option['x'];
         thing.y = option['y'];
-        thing.regX = thing.image.width * 0.5;
-        thing.regY = thing.image.height * 0.5;
+        if(thing instanceof createjs.Bitmap) {
+            thing.regX = thing.image.width * 0.5;
+            thing.regY = thing.image.height * 0.5;
+        } else if(thing instanceof createjs.Sprite) {
+            thing.regX = thing.spriteSheet.getFrame(0).rect.width * 0.5;
+            thing.regY = thing.spriteSheet.getFrame(0).rect.height * 0.5;
+        }
         thing.scaleX = this.scale;
         thing.scaleY = this.scale;
         thing.snapToPixel = true;
-        this.testStage.addChild(thing);
+        // this.testStage.addChild(thing);
+        this.testStage.addChildAt(thing, 0);
         return this.box2d.createCircle(thing, option);
     };
 
@@ -237,7 +278,7 @@ var game;
 }(window));
 
 window.onload = function() {
-    game = new Game();
+    setTimeout(function() { game = new Game(); }, 200);
 };
 
 // window.onresize = function() {
