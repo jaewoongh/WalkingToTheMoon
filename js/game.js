@@ -43,13 +43,18 @@ var game;
         './assets/images/enemies/e5.png'
     ];
 
+    var ANI_ENEMY_INBOX = [
+        './assets/images/enemies/inbox.png'
+    ];
+    var ANI_ENEMIES = [].concat(ANI_ENEMY_INBOX);
+
     // Sprite sheet for test player
     var ANI_PLAYER = [
         './assets/images/players/heroine.png'
     ];
 
     // Combine all the assets
-    var ASSETS = [].concat(IMG_ENEMIES, ANI_PLAYER);
+    var ASSETS = [].concat(IMG_ENEMIES, ANI_ENEMIES, ANI_PLAYER);
 
 
     /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
@@ -118,8 +123,23 @@ var game;
         // Assign images for enemies
         this.imgEnemy = [];
         for(var i = 0; i < IMG_ENEMIES.length; i++) {
-            this.imgEnemy.push(new createjs.Bitmap(this.assets[IMG_ENEMIES[i]]));
+            var enemy = new createjs.Bitmap(this.assets[IMG_ENEMIES[i]]);
+            this.imgEnemy.push(enemy);
         }
+
+        // Assign images for sprited enemies
+        var SPR_ENEMY_INBOX = new createjs.SpriteSheet({
+            images: [this.assets[ANI_ENEMY_INBOX]],
+            frames: {
+                height: 203,
+                width: 240,
+                count: 10
+            },
+            animations: {
+                counter: { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+            }
+        });
+        this.aniEnemyInbox = new createjs.Sprite(SPR_ENEMY_INBOX);
 
         // Assign sprite for a player
         var SPR_PLAYER = new createjs.SpriteSheet({
@@ -177,20 +197,17 @@ var game;
     p.doYourJobEnemies = function() {
         for(var i = 0; i < this.testEnemies.length; i++) {
             this.testEnemies[i].chase(this.testPlayer, {
-                uniformForce: {
-                    force: 20 * this.scale
-                }
-            });
+                uniformForce: { force: 20 * this.scale }});
         }
     };
 
     p.removeOffBoundaries = function(array) {
         for(var i = array.length-1; i >= 0; i--) {
             var one = array[i];
-            if (one.skin.x + one.skin.image.width*0.5 < -this.canvas.width*0.5 ||
-                one.skin.x - one.skin.image.width*0.5 >= this.canvas.width*1.5 ||
-                one.skin.y + one.skin.image.height*0.5 < -this.canvas.height*0.2 ||
-                one.skin.y - one.skin.image.height*0.5 >= this.canvas.height) {
+            if (one.getX() + one.width*0.5 < -this.canvas.width*0.3 ||
+                one.getX() - one.width*0.5 >= this.canvas.width*1.3 ||
+                one.getY() + one.height*0.5 < -this.canvas.height*0.3 ||
+                one.getY() - one.height*0.5 >= this.canvas.height) {
                 one.kill();
                 array.splice(i, 1);
             }
@@ -236,19 +253,26 @@ var game;
     /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
         ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐
         ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
-    p.createTestEnemy = function(evt) {
-        var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
-        var body = this.createCircleObject(skin, { x: evt.sx, y: evt.sy });
-        var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-        rigid.applyForce2(evt.swipeAngle, evt.swipeDistance);
-        this.testEnemies.push(rigid);
-    };
+    // p.createTestEnemy = function(evt) {
+    //     var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
+    //     var body = this.createCircleObject(skin, { x: evt.sx, y: evt.sy });
+    //     var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+    //     rigid.applyForce2(evt.swipeAngle, evt.swipeDistance);
+    //     this.testEnemies.push(rigid);
+    // };
 
     p.createTestEnemy2 = function() {
-        var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
-        var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
-        var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-        this.testEnemies.push(rigid);
+        if(Math.random() < 0.8) {
+            var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
+            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
+            var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+            this.testEnemies.push(rigid);
+        } else {
+            var skin = this.aniEnemyInbox.clone();
+            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0});
+            var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+            this.testEnemies.push(rigid);
+        }
     };
 
     p.createTestPlayer = function() {
@@ -283,7 +307,7 @@ var game;
         thing.scaleX = this.scale;
         thing.scaleY = this.scale;
         thing.snapToPixel = true;
-        if(option['index']) {
+        if(option['index'] !== undefined) {
             this.testStage.addChildAt(thing, option['index']);
         } else {
             this.testStage.addChild(thing);

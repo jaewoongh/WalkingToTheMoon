@@ -35,8 +35,8 @@
         this.b2d = b2d;
 
         // Aliases
-        this.x = this.skin.x;
-        this.y = this.skin.y;
+        this.getX = function() { return this.skin.x; };
+        this.getY = function() { return this.skin.y; };
         this.rotation = this.skin.rotation;
         this.angle = this.skin.rotation * Math.PI * 2 / 360;
         if(this.skin instanceof createjs.Bitmap) {
