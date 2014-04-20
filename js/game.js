@@ -50,7 +50,7 @@ var game;
 
     // Sprite sheet for test player
     var ANI_PLAYER = [
-        './assets/images/players/heroine.png'
+        './assets/images/players/charles.png'
     ];
 
     // Combine all the assets
@@ -145,9 +145,9 @@ var game;
         var SPR_PLAYER = new createjs.SpriteSheet({
             images: [this.assets[ANI_PLAYER]],
             frames: {
-                height: 350,
-                width: 470,
-                count: 4
+                height: 239,
+                width: 300,
+                count: 5
             },
             animations: {
                 walk: {
@@ -155,7 +155,7 @@ var game;
                     speed: 0.1
                 },
                 hit: {
-                    frames: [1],
+                    frames: [4],
                 }
             }
         });

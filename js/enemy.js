@@ -53,7 +53,7 @@
                     }
                 };
                 this.chaseOption = {
-                    uniformForce: { force: 70 * game.scale }
+                    uniformForce: { force: 60 * game.scale }
                 };
                 break;
         }
