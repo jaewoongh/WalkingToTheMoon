@@ -163,14 +163,6 @@ var game;
 
         // Create test player
         this.createTestPlayer();
-        // this.aniPlayer.x = this.canvas.width * 0.5;
-        // this.aniPlayer.y = this.canvas.height * 0.8;
-        // this.aniPlayer.regX = this.aniPlayer.spriteSheet.getFrameBounds(0).width * 0.5;
-        // this.aniPlayer.regY = this.aniPlayer.spriteSheet.getFrameBounds(0).height * 0.5;
-        // this.aniPlayer.scaleX = this.scale;
-        // this.aniPlayer.scaleY = this.scale;
-        // this.aniPlayer.gotoAndPlay('walk');
-        // this.testStage.addChild(this.aniPlayer);
 
         // Set Ticker
         createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
@@ -190,7 +182,7 @@ var game;
         this.basicGesture.run();
 
         if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
-            this.createTestEnemy2();
+            this.createTestEnemy();
         }
     };
 
@@ -223,23 +215,38 @@ var game;
             case 'gesturestart':
                 break;
             case 'gesturetap':
+                var enemy, targetX, targetY;
+                targetX = evt.detail.x;
+                targetY = evt.detail.y;
+                enemy = null;
+                enemy = this.box2d.pickEnemy(targetX, targetY, this.canvas.height * 0.05);
+                if(enemy) {
+                    if(enemy.tappable) {
+                        if(enemy.tappable === true) {
+                            enemy.kill();
+                        } else {
+                            enemy.tappable();
+                        }
+                    }
+                }
                 break;
             case 'gestureswipe':
-                // // Test#1: Swipe generates enemy
-                // this.createTestEnemy(evt.detail);
-
-                // // Test#2: Swipe picks an enemy and throw it
-                // var rigid = this.box2d.pickRigidBody(evt.detail.sx, evt.detail.sy, this.canvas.height * 0.1);
-                // if(rigid) rigid.applyForce2(evt.detail.swipeAngle, Math.max(Math.pow(evt.detail.swipeDistance, 2), this.canvas.height*0.2));
-
-                // Test#3: Swipe picks enemies on its trail and throw them
-                var rigid, targetX, targetY;
+                // Test: Swipe picks enemies on its trail and throw them
+                var enemy, targetX, targetY;
                 for(var i = -0.2, j = -0.2; i < 1; i += 0.1, j += 0.1) {
                     targetX = evt.detail.sx + (evt.detail.x - evt.detail.sx) * i;
                     targetY = evt.detail.sy + (evt.detail.y - evt.detail.sy) * i;
-                    regid = null;
-                    rigid = this.box2d.pickRigidBody(targetX, targetY, this.canvas.height * 0.05);
-                    if(rigid) rigid.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*Math.pow(1-i, 2)*0.1, this.canvas.height*0.01));
+                    enemy = null;
+                    enemy = this.box2d.pickEnemy(targetX, targetY, this.canvas.height * 0.05);
+                    if(enemy) {
+                        if(enemy.throwable) {
+                            if(enemy.throwable === true) {
+                                enemy.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*Math.pow(1-i, 2)*0.1, this.canvas.height*0.01));
+                            } else {
+                                enemy.throwable();
+                            }
+                        }
+                    }
                 }
                 break;
             case 'gesturehold':
@@ -253,25 +260,17 @@ var game;
     /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
         ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐
         ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
-    // p.createTestEnemy = function(evt) {
-    //     var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
-    //     var body = this.createCircleObject(skin, { x: evt.sx, y: evt.sy });
-    //     var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-    //     rigid.applyForce2(evt.swipeAngle, evt.swipeDistance);
-    //     this.testEnemies.push(rigid);
-    // };
-
-    p.createTestEnemy2 = function() {
+    p.createTestEnemy = function() {
         if(Math.random() < 0.8) {
             var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(rigid);
+            this.testEnemies.push(new Enemy('Mundane', rigid));
         } else {
             var skin = this.aniEnemyInbox.clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0});
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(rigid);
+            this.testEnemies.push(new Enemy('Inbox', rigid));
         }
     };
 

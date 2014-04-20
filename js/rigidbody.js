@@ -37,8 +37,8 @@
         // Aliases
         this.getX = function() { return this.skin.x; };
         this.getY = function() { return this.skin.y; };
-        this.rotation = this.skin.rotation;
-        this.angle = this.skin.rotation * Math.PI * 2 / 360;
+        this.getRotation = function() { return this.skin.rotation; };
+        this.getAngle = function() { return this.getRotation() * Math.PI * 2 / 360; };
         if(this.skin instanceof createjs.Bitmap) {
             this.width = this.skin.image.width;
             this.height = this.skin.image.height;
@@ -112,6 +112,7 @@
         if(option['uniformForce']) {
             this.applyForce(dest, this.body.GetWorldCenter());
         }
+        return this;
     };
 
 

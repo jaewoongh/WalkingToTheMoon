@@ -55,7 +55,7 @@
         this.bodiesToRemove = [];
 
         // Set up initial settings
-        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 1), true);
+        this.world = new b2World(new b2Vec2(0, option['GRAVITY'] || 0), true);
         this.addDebug();
 
         // // Add floor for the sake of test
@@ -176,6 +176,11 @@
             }, aabb);
 
         return pickedRigidBody;
+    };
+
+    p.pickEnemy = function(x, y, size) {
+        var rigid = this.pickRigidBody(x, y, size);
+        if(rigid) return rigid['enemy'];
     };
 
 
