@@ -41,10 +41,11 @@
             case 'Mundane':
                 this.throwable = true;
                 this.chaseOption = {
-                    uniformForce: { force: 20 * game.scale }
+                    uniformForce: { force: 10 * game.scale }
                 };
                 break;
             case 'Inbox':
+                this.skin.gotoAndStop(7);
                 this.tappable = function() {
                     this.skin.gotoAndStop(++this.skin.currentFrame);
                     if(this.skin.currentFrame == 0) {
@@ -52,7 +53,7 @@
                     }
                 };
                 this.chaseOption = {
-                    uniformForce: { force: 1 * game.scale }
+                    uniformForce: { force: 70 * game.scale }
                 };
                 break;
         }

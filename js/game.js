@@ -268,7 +268,7 @@ var game;
             this.testEnemies.push(new Enemy('Mundane', rigid));
         } else {
             var skin = this.aniEnemyInbox.clone();
-            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0});
+            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 30 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
             this.testEnemies.push(new Enemy('Inbox', rigid));
         }
