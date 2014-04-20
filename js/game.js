@@ -34,27 +34,27 @@ var game;
         ╩ ╩└─┘└─┘└─┘ ┴ └─┘  */
 
     // Images for emenies
-    var IMG_ENEMIES = [
-        './assets/images/enemies/e0.png',
-        './assets/images/enemies/e1.png',
-        './assets/images/enemies/e2.png',
-        './assets/images/enemies/e3.png',
-        './assets/images/enemies/e4.png',
-        './assets/images/enemies/e5.png'
+    var IMG_ENEMY_MUNDANE = [
+        './assets/images/enemies/mundane0.png',
+        './assets/images/enemies/mundane1.png',
+        './assets/images/enemies/mundane2.png',
+        './assets/images/enemies/mundane3.png'
     ];
+    var IMG_ENEMY_FILE = ['./assets/images/enemies/file.png'];
+    var IMG_ENEMY_FOLDER = ['./assets/images/enemies/folder.png'];
 
-    var ANI_ENEMY_INBOX = [
-        './assets/images/enemies/inbox.png'
-    ];
-    var ANI_ENEMIES = [].concat(ANI_ENEMY_INBOX);
+    var ANI_ENEMY_INBOX = ['./assets/images/enemies/inbox.png'];
 
     // Sprite sheet for test player
-    var ANI_PLAYER = [
-        './assets/images/players/charles.png'
-    ];
+    var ANI_PLAYER = ['./assets/images/players/charles.png'];
 
     // Combine all the assets
-    var ASSETS = [].concat(IMG_ENEMIES, ANI_ENEMIES, ANI_PLAYER);
+    var ASSETS = [].concat(
+        IMG_ENEMY_MUNDANE,
+        IMG_ENEMY_FILE,
+        IMG_ENEMY_FOLDER,
+        ANI_ENEMY_INBOX,
+        ANI_PLAYER);
 
 
     /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
@@ -120,12 +120,16 @@ var game;
     p.assetsLoaded = function() {
         if(debug) console.log('.. assets are loaded');
 
-        // Assign images for enemies
-        this.imgEnemy = [];
-        for(var i = 0; i < IMG_ENEMIES.length; i++) {
-            var enemy = new createjs.Bitmap(this.assets[IMG_ENEMIES[i]]);
-            this.imgEnemy.push(enemy);
+        // Assign images for mundane enemies
+        this.imgEnemyMundane = [];
+        for(var i = 0; i < IMG_ENEMY_MUNDANE.length; i++) {
+            var imgEnemyMundane = new createjs.Bitmap(this.assets[IMG_ENEMY_MUNDANE[i]]);
+            this.imgEnemyMundane.push(imgEnemyMundane);
         }
+
+        // Assign images for file and folder enemies
+        this.imgEnemyFile = new createjs.Bitmap(this.assets[IMG_ENEMY_FILE]);
+        this.imgEnemyFolder = new createjs.Bitmap(this.assets[IMG_ENEMY_FOLDER]);
 
         // Assign images for sprited enemies
         var SPR_ENEMY_INBOX = new createjs.SpriteSheet({
@@ -199,7 +203,7 @@ var game;
             if (one.getX() + one.width*0.5 < -this.canvas.width*0.3 ||
                 one.getX() - one.width*0.5 >= this.canvas.width*1.3 ||
                 one.getY() + one.height*0.5 < -this.canvas.height*0.3 ||
-                one.getY() - one.height*0.5 >= this.canvas.height) {
+                one.getY() - one.height*0.5 >= this.canvas.height*1.3) {
                 one.kill();
                 array.splice(i, 1);
             }
@@ -261,11 +265,17 @@ var game;
         ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐
         ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
     p.createTestEnemy = function() {
-        if(Math.random() < 0.8) {
-            var skin = this.imgEnemy[Math.floor(Math.random()*this.imgEnemy.length)].clone();
+        var dice = Math.random();
+        if(dice < 0.7) {
+            var skin = this.imgEnemyMundane[Math.floor(Math.random()*this.imgEnemyMundane.length)].clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
             this.testEnemies.push(new Enemy('Mundane', rigid));
+        } else if(dice < 0.9) {
+            var skin = this.imgEnemyFolder.clone();
+            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 5 });
+            var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+            this.testEnemies.push(new Enemy('Folder', rigid));
         } else {
             var skin = this.aniEnemyInbox.clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 30 });

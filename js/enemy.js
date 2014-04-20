@@ -44,6 +44,33 @@
                     uniformForce: { force: 10 * game.scale }
                 };
                 break;
+            case 'Folder':
+                this.throwable = true;
+                this.tappable = function() {
+                    (function(folder) {
+                        var x = folder.getX();
+                        var y = folder.getY();
+                        folder.kill();
+                        var skin, body, rigid;
+                        for(var i = 0; i < 4; i++) {
+                            skin = this.imgEnemyFile.clone();
+                            body = this.createCircleObject(skin, { x: x, y: y, index: 0 });
+                            rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+                            this.testEnemies.push(new Enemy('File', rigid));
+                        }
+                    }).apply(game, [this]);
+                };
+                this.chaseOption = {
+                    uniformForce: { force: 10 * game.scale }
+                };
+                break;
+            case 'File':
+                this.throwable = true;
+                this.tappable = true;
+                this.chaseOption = {
+                    uniformForce: { force: 10 * game.scale }
+                };
+                break;
             case 'Inbox':
                 this.skin.gotoAndStop(7);
                 this.tappable = function() {
