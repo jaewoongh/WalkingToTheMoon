@@ -41,6 +41,7 @@
         switch(name) {
             case 'Mundane':
                 this.throwable = true;
+                this.tappable = true;
                 this.chaseOption = {
                     uniformForce: { force: 10 * game.scale }
                 };
@@ -81,7 +82,7 @@
                     }
                 };
                 this.chaseOption = {
-                    uniformForce: { force: 60 * game.scale }
+                    uniformForce: { force: 90 * game.scale }
                 };
                 break;
         }

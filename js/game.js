@@ -35,7 +35,6 @@ var game;
 
     // Title image
     var BG_TITLE = ['./assets/images/backgrounds/title.png'];
-    var UI_START = ['./assets/images/ui/start_walking.png'];
 
     // Images for emenies
     var IMG_ENEMY_MUNDANE = [
@@ -55,7 +54,6 @@ var game;
     // Combine all the assets
     var ASSETS = [].concat(
         BG_TITLE,
-        UI_START,
         IMG_ENEMY_MUNDANE,
         IMG_ENEMY_FILE,
         IMG_ENEMY_FOLDER,
@@ -133,12 +131,6 @@ var game;
         this.bgTitle.regX = this.bgTitle.image.width * 0.5;
         this.bgTitle.regY = this.bgTitle.image.height * 0.5;
         this.bgTitle.scaleX = this.bgTitle.scaleY = this.scale;
-        this.uiStart = new createjs.Bitmap(this.assets[UI_START]);
-        this.uiStart.x = this.canvas.width * 0.52;
-        this.uiStart.y = this.canvas.height * 0.75;
-        this.uiStart.regX = this.uiStart.image.width * 0.5;
-        this.uiStart.regY = this.uiStart.image.height * 0.5;
-        this.uiStart.scaleX = this.uiStart.scaleY = this.scale;
 
         // Assign images for mundane enemies
         this.imgEnemyMundane = [];
@@ -202,7 +194,6 @@ var game;
         switch(this.gamePhase) {
             case 'INIT':
                 this.testStage.addChild(this.bgTitle);
-                this.testStage.addChild(this.uiStart);
                 this.gamePhase = 'TITLE';
                 break;
             case 'TITLE':
@@ -252,7 +243,6 @@ var game;
             case 'gesturetap':
                 switch(this.gamePhase) {
                     case 'TITLE':
-                        this.testStage.removeChild(this.uiStart);
                         this.testStage.removeChild(this.bgTitle);
                         this.gamePhase = 'TEST-STAGE';
 
@@ -324,7 +314,7 @@ var game;
             this.testEnemies.push(new Enemy(this, 'Folder', rigid));
         } else {
             var skin = this.aniEnemyInbox.clone();
-            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 30 });
+            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 45 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
             this.testEnemies.push(new Enemy(this, 'Inbox', rigid));
         }
