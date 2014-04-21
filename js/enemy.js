@@ -12,8 +12,8 @@
 */
 
 (function(scope) {
-    function Enemy(name, rigid) {
-        this.initialize(name, rigid);
+    function Enemy(game, name, rigid) {
+        this.initialize(game, name, rigid);
     }
     var p = Enemy.prototype;
 
@@ -21,7 +21,8 @@
     /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
         ║││││ │ │├─┤│  │┌─┘├┤ 
         ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
-    p.initialize = function(name, rigid) {
+    p.initialize = function(game, name, rigid) {
+        this.game = game;
         this.name = name;
         this.rigid = rigid;
         rigid.enemy = this;
@@ -56,12 +57,12 @@
                             skin = this.imgEnemyFile.clone();
                             body = this.createCircleObject(skin, { x: x, y: y, index: 0 });
                             rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-                            this.testEnemies.push(new Enemy('File', rigid));
+                            this.testEnemies.push(new Enemy(this, 'File', rigid));
                         }
-                    }).apply(game, [this]);
+                    }).apply(this.game, [this]);
                 };
                 this.chaseOption = {
-                    uniformForce: { force: 10 * game.scale }
+                    uniformForce: { force: 20 * game.scale }
                 };
                 break;
             case 'File':

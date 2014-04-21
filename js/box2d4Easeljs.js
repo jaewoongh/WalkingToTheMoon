@@ -229,8 +229,10 @@
     p.pauseResume = function(p) {
         if(p) {
             this.TIMESTEP = 0;
+            console.log('Game Paused');
         } else {
             this.TIMESTEP = 1 / this.STEP;
+            console.log('Game Resumed');
         }
         this.lastTimestamp = Date.now();
     };

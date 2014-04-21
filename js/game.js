@@ -33,6 +33,10 @@ var game;
         ╠═╣└─┐└─┐├┤  │ └─┐
         ╩ ╩└─┘└─┘└─┘ ┴ └─┘  */
 
+    // Title image
+    var BG_TITLE = ['./assets/images/backgrounds/title.png'];
+    var UI_START = ['./assets/images/ui/start_walking.png'];
+
     // Images for emenies
     var IMG_ENEMY_MUNDANE = [
         './assets/images/enemies/mundane0.png',
@@ -50,6 +54,8 @@ var game;
 
     // Combine all the assets
     var ASSETS = [].concat(
+        BG_TITLE,
+        UI_START,
         IMG_ENEMY_MUNDANE,
         IMG_ENEMY_FILE,
         IMG_ENEMY_FOLDER,
@@ -120,6 +126,20 @@ var game;
     p.assetsLoaded = function() {
         if(debug) console.log('.. assets are loaded');
 
+        // Title screen & ui
+        this.bgTitle = new createjs.Bitmap(this.assets[BG_TITLE]);
+        this.bgTitle.x = this.canvas.width * 0.5;
+        this.bgTitle.y = this.canvas.height * 0.5;
+        this.bgTitle.regX = this.bgTitle.image.width * 0.5;
+        this.bgTitle.regY = this.bgTitle.image.height * 0.5;
+        this.bgTitle.scaleX = this.bgTitle.scaleY = this.scale;
+        this.uiStart = new createjs.Bitmap(this.assets[UI_START]);
+        this.uiStart.x = this.canvas.width * 0.52;
+        this.uiStart.y = this.canvas.height * 0.75;
+        this.uiStart.regX = this.uiStart.image.width * 0.5;
+        this.uiStart.regY = this.uiStart.image.height * 0.5;
+        this.uiStart.scaleX = this.uiStart.scaleY = this.scale;
+
         // Assign images for mundane enemies
         this.imgEnemyMundane = [];
         for(var i = 0; i < IMG_ENEMY_MUNDANE.length; i++) {
@@ -135,8 +155,8 @@ var game;
         var SPR_ENEMY_INBOX = new createjs.SpriteSheet({
             images: [this.assets[ANI_ENEMY_INBOX]],
             frames: {
-                height: 203,
-                width: 240,
+                height: 180,
+                width: 220,
                 count: 10
             },
             animations: {
@@ -165,8 +185,8 @@ var game;
         });
         this.aniPlayer = new createjs.Sprite(SPR_PLAYER);
 
-        // Create test player
-        this.createTestPlayer();
+        // Set game phase
+        this.gamePhase = 'INIT';
 
         // Set Ticker
         createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
@@ -179,15 +199,26 @@ var game;
         ║  │ ││ │├─┘
         ╩═╝└─┘└─┘┴      */
     p.onTick = function() {
-        this.doYourJobEnemies();
-        this.removeOffBoundaries(this.testEnemies);
-        this.box2d.update();
+        switch(this.gamePhase) {
+            case 'INIT':
+                this.testStage.addChild(this.bgTitle);
+                this.testStage.addChild(this.uiStart);
+                this.gamePhase = 'TITLE';
+                break;
+            case 'TITLE':
+                break;
+            case 'TEST-STAGE':
+                this.doYourJobEnemies();
+                this.removeOffBoundaries(this.testEnemies);
+                this.box2d.update();
+
+                if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
+                    this.createTestEnemy();
+                }
+                break;
+        }
         this.testStage.update();
         this.basicGesture.run();
-
-        if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
-            this.createTestEnemy();
-        }
     };
 
     p.doYourJobEnemies = function() {
@@ -219,38 +250,53 @@ var game;
             case 'gesturestart':
                 break;
             case 'gesturetap':
-                var enemy, targetX, targetY;
-                targetX = evt.detail.x;
-                targetY = evt.detail.y;
-                enemy = null;
-                enemy = this.box2d.pickEnemy(targetX, targetY, this.canvas.height * 0.05);
-                if(enemy) {
-                    if(enemy.tappable) {
-                        if(enemy.tappable === true) {
-                            enemy.kill();
-                        } else {
-                            enemy.tappable();
+                switch(this.gamePhase) {
+                    case 'TITLE':
+                        this.testStage.removeChild(this.uiStart);
+                        this.testStage.removeChild(this.bgTitle);
+                        this.gamePhase = 'TEST-STAGE';
+
+                        // Create test player
+                        this.createTestPlayer();
+                        break;
+                    case 'TEST-STAGE':
+                        var enemy, targetX, targetY;
+                        targetX = evt.detail.x;
+                        targetY = evt.detail.y;
+                        enemy = null;
+                        enemy = this.box2d.pickEnemy(targetX, targetY, this.canvas.height * 0.05);
+                        if(enemy) {
+                            if(enemy.tappable) {
+                                if(enemy.tappable === true) {
+                                    enemy.kill();
+                                } else {
+                                    enemy.tappable();
+                                }
+                            }
                         }
-                    }
+                        break;
                 }
                 break;
             case 'gestureswipe':
-                // Test: Swipe picks enemies on its trail and throw them
-                var enemy, targetX, targetY;
-                for(var i = -0.2, j = -0.2; i < 1; i += 0.1, j += 0.1) {
-                    targetX = evt.detail.sx + (evt.detail.x - evt.detail.sx) * i;
-                    targetY = evt.detail.sy + (evt.detail.y - evt.detail.sy) * i;
-                    enemy = null;
-                    enemy = this.box2d.pickEnemy(targetX, targetY, this.canvas.height * 0.05);
-                    if(enemy) {
-                        if(enemy.throwable) {
-                            if(enemy.throwable === true) {
-                                enemy.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*Math.pow(1-i, 2)*0.1, this.canvas.height*0.01));
-                            } else {
-                                enemy.throwable();
+                switch(this.gamePhase) {
+                    case 'TEST-STAGE':
+                        var enemy, targetX, targetY;
+                        for(var i = -0.2, j = -0.2; i < 1; i += 0.1, j += 0.1) {
+                            targetX = evt.detail.sx + (evt.detail.x - evt.detail.sx) * i;
+                            targetY = evt.detail.sy + (evt.detail.y - evt.detail.sy) * i;
+                            enemy = null;
+                            enemy = this.box2d.pickEnemy(targetX, targetY, this.canvas.height * 0.05);
+                            if(enemy) {
+                                if(enemy.throwable) {
+                                    if(enemy.throwable === true) {
+                                        enemy.applyImpulse2(evt.detail.swipeAngle, Math.max(evt.detail.swipeDistance*Math.pow(1-i, 2)*0.1, this.canvas.height*0.01));
+                                    } else {
+                                        enemy.throwable();
+                                    }
+                                }
                             }
                         }
-                    }
+                        break;
                 }
                 break;
             case 'gesturehold':
@@ -270,17 +316,17 @@ var game;
             var skin = this.imgEnemyMundane[Math.floor(Math.random()*this.imgEnemyMundane.length)].clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(new Enemy('Mundane', rigid));
+            this.testEnemies.push(new Enemy(this, 'Mundane', rigid));
         } else if(dice < 0.9) {
             var skin = this.imgEnemyFolder.clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 5 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(new Enemy('Folder', rigid));
+            this.testEnemies.push(new Enemy(this, 'Folder', rigid));
         } else {
             var skin = this.aniEnemyInbox.clone();
             var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 30 });
             var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(new Enemy('Inbox', rigid));
+            this.testEnemies.push(new Enemy(this, 'Inbox', rigid));
         }
     };
 
@@ -289,6 +335,8 @@ var game;
         var body = this.createCircleObject(skin, {
             x: this.canvas.width * 0.5,
             y: this.canvas.height * 0.8,
+            friction: 1.0,
+            restitution: 0,
             radius: skin.spriteSheet.getFrameBounds(0).height * this.scale * 0.3,
             static: true
         });
@@ -340,6 +388,14 @@ var game;
 
 window.onload = function() {
     setTimeout(function() { game = new Game(); }, 200);
+};
+
+window.onblur = function() {
+    game.box2d.pauseResume(true);
+};
+
+window.onfocus = function() {
+    game.box2d.pauseResume(false);
 };
 
 // window.onresize = function() {
