@@ -220,8 +220,8 @@
 
             this.fixedTimestepAccumulator -= this.STEP;
             this.world.ClearForces();
-            this.world.m_debugDraw.m_sprite.graphics.clear();
-            this.world.DrawDebugData();
+            // this.world.m_debugDraw.m_sprite.graphics.clear();
+            // this.world.DrawDebugData();
         };
     };
 

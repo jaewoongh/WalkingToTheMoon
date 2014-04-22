@@ -107,9 +107,17 @@
         var dest = target.body.GetWorldCenter().Copy();
         var start = this.body.GetWorldCenter();
         dest.Subtract(start);
-        dest.Normalize();
-        dest.Multiply(option.uniformForce['force']);
         if(option['uniformForce']) {
+            dest.Normalize();
+            dest.Multiply(option.uniformForce['force']);
+            this.applyForce(dest, this.body.GetWorldCenter());
+        } else if(option['ease']) {
+            var force = Math.map2(Math.pow(dest.Length(), option.ease['power']),
+                Math.pow(option.ease['distMax'], option.ease['power']), Math.pow(option.ease['distMin'], option.ease['power']),
+                Math.pow(option.ease['forceMin'], option.ease['power']), Math.pow(option.ease['forceMax'], option.ease['power']));
+            force = Math.pow(force, 1/option.ease['power']);
+            dest.Normalize();
+            dest.Multiply(force);
             this.applyForce(dest, this.body.GetWorldCenter());
         }
         return this;

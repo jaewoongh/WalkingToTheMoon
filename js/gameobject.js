@@ -1,21 +1,21 @@
 /*
-  _____                            
- | ____|_ __   ___ _ __ ___  _   _ 
- |  _| | '_ \ / _ \ '_ ` _ \| | | |
- | |___| | | |  __/ | | | | | |_| |
- |_____|_| |_|\___|_| |_| |_|\__, |
-                             |___/ 
-  A class that wraps RigidBody class as a enemy
-   Enemy class has some built-in behaviors set by its name
+   ____                       ___  _     _           _   
+  / ___| __ _ _ __ ___   ___ / _ \| |__ (_) ___  ___| |_ 
+ | |  _ / _` | '_ ` _ \ / _ \ | | | '_ \| |/ _ \/ __| __|
+ | |_| | (_| | | | | | |  __/ |_| | |_) | |  __/ (__| |_ 
+  \____|\__,_|_| |_| |_|\___|\___/|_.__// |\___|\___|\__|
+                                      |__/               
+  A class that wraps basically RigidBody class as a GameObject
+   GameObject object can have behaviors, like movement scenario and how it would be when tapped
     Written by Jaewoong Hwang(http://jaewoong.info)
      April 2014
 */
 
 (function(scope) {
-    function Enemy(game, name, rigid) {
+    function GameObject(game, name, rigid) {
         this.initialize(game, name, rigid);
     }
-    var p = Enemy.prototype;
+    var p = GameObject.prototype;
 
 
     /*  ╦┌┐┌┬┌┬┐┬┌─┐┬  ┬┌─┐┌─┐
@@ -55,10 +55,7 @@
                         folder.kill();
                         var skin, body, rigid;
                         for(var i = 0; i < 4; i++) {
-                            skin = this.imgEnemyFile.clone();
-                            body = this.createCircleObject(skin, { x: x, y: y, index: 0 });
-                            rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-                            this.testEnemies.push(new Enemy(this, 'File', rigid));
+                            game.stages.createEnemy('File', { x: x, y: y });
                         }
                     }).apply(this.game, [this]);
                 };
@@ -82,7 +79,7 @@
                     }
                 };
                 this.chaseOption = {
-                    uniformForce: { force: 90 * game.scale }
+                    uniformForce: { force: 200 * game.scale }
                 };
                 break;
         }
@@ -125,5 +122,5 @@
         this.rigid.kill();
     };
 
-    scope.Enemy = Enemy;
+    scope.GameObject = GameObject;
 }(window))

@@ -113,8 +113,11 @@ var game;
             STEP: 20
         });
 
+        // Initialize Stage data
+        this.stages = new GameStage(this);
+
         // Game variables
-        this.testEnemies = [];
+        this.enemies = [];
     };
 
 
@@ -133,15 +136,16 @@ var game;
         this.bgTitle.scaleX = this.bgTitle.scaleY = this.scale;
 
         // Assign images for mundane enemies
-        this.imgEnemyMundane = [];
+        this.imgEnemy = [];
+        this.imgEnemy['Mundane'] = [];
         for(var i = 0; i < IMG_ENEMY_MUNDANE.length; i++) {
             var imgEnemyMundane = new createjs.Bitmap(this.assets[IMG_ENEMY_MUNDANE[i]]);
-            this.imgEnemyMundane.push(imgEnemyMundane);
+            this.imgEnemy['Mundane'].push(imgEnemyMundane);
         }
 
         // Assign images for file and folder enemies
-        this.imgEnemyFile = new createjs.Bitmap(this.assets[IMG_ENEMY_FILE]);
-        this.imgEnemyFolder = new createjs.Bitmap(this.assets[IMG_ENEMY_FOLDER]);
+        this.imgEnemy['File'] = new createjs.Bitmap(this.assets[IMG_ENEMY_FILE]);
+        this.imgEnemy['Folder'] = new createjs.Bitmap(this.assets[IMG_ENEMY_FOLDER]);
 
         // Assign images for sprited enemies
         var SPR_ENEMY_INBOX = new createjs.SpriteSheet({
@@ -155,7 +159,7 @@ var game;
                 counter: { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
             }
         });
-        this.aniEnemyInbox = new createjs.Sprite(SPR_ENEMY_INBOX);
+        this.imgEnemy['Inbox'] = new createjs.Sprite(SPR_ENEMY_INBOX);
 
         // Assign sprite for a player
         var SPR_PLAYER = new createjs.SpriteSheet({
@@ -178,11 +182,13 @@ var game;
         this.aniPlayer = new createjs.Sprite(SPR_PLAYER);
 
         // Set game phase
-        this.gamePhase = 'INIT';
+        this.gamePhase = {};
+        this.gamePhase['phase'] = 'INIT';
 
         // Set Ticker
         createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
         createjs.Ticker.setFPS(30);
+        this.paused = false;
         createjs.Ticker.addEventListener('tick', this.onTick.bind(this));
     };
 
@@ -191,32 +197,42 @@ var game;
         ║  │ ││ │├─┘
         ╩═╝└─┘└─┘┴      */
     p.onTick = function() {
-        switch(this.gamePhase) {
-            case 'INIT':
-                this.testStage.addChild(this.bgTitle);
-                this.gamePhase = 'TITLE';
-                break;
-            case 'TITLE':
-                break;
-            case 'TEST-STAGE':
-                this.doYourJobEnemies();
-                this.removeOffBoundaries(this.testEnemies);
-                this.box2d.update();
+    	if(this.paused === false) {
+	        switch(this.gamePhase['phase']) {
+	            case 'INIT':
+	                this.testStage.addChild(this.bgTitle);
+	                this.gamePhase['phase'] = 'TITLE';
+	                break;
+	            case 'TITLE':
+	                break;
+	            case 'IN-STAGE':
+	            	this.stages[this.gamePhase['stage']].loop();
+	                // this.doYourJobEnemies();
+	                // this.removeOffBoundaries(this.enemies);
+	                // this.box2d.update();
 
-                if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
-                    this.createTestEnemy();
-                }
-                break;
-        }
+	                // if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
+	                //     this.createTestEnemy();
+	                // }
+	                break;
+	        }
+    	}
         this.testStage.update();
         this.basicGesture.run();
     };
 
     p.doYourJobEnemies = function() {
-        for(var i = 0; i < this.testEnemies.length; i++) {
-            this.testEnemies[i].chase(this.testPlayer, {
-                uniformForce: { force: 20 * this.scale }});
+        for(var i = 0; i < this.enemies.length; i++) {
+            this.enemies[i].chase(this.testPlayer);
         }
+    };
+
+    p.pause = function() {
+    	this.paused = true;
+    };
+
+    p.resume = function() {
+    	this.paused = false;
     };
 
     p.removeOffBoundaries = function(array) {
@@ -241,15 +257,16 @@ var game;
             case 'gesturestart':
                 break;
             case 'gesturetap':
-                switch(this.gamePhase) {
+                switch(this.gamePhase['phase']) {
                     case 'TITLE':
                         this.testStage.removeChild(this.bgTitle);
-                        this.gamePhase = 'TEST-STAGE';
+                        this.gamePhase['phase'] = 'IN-STAGE';
+                        this.gamePhase['stage'] = 'test';
 
                         // Create test player
                         this.createTestPlayer();
                         break;
-                    case 'TEST-STAGE':
+                    case 'IN-STAGE':
                         var enemy, targetX, targetY;
                         targetX = evt.detail.x;
                         targetY = evt.detail.y;
@@ -268,8 +285,8 @@ var game;
                 }
                 break;
             case 'gestureswipe':
-                switch(this.gamePhase) {
-                    case 'TEST-STAGE':
+                switch(this.gamePhase['phase']) {
+                    case 'IN-STAGE':
                         var enemy, targetX, targetY;
                         for(var i = -0.2, j = -0.2; i < 1; i += 0.1, j += 0.1) {
                             targetX = evt.detail.sx + (evt.detail.x - evt.detail.sx) * i;
@@ -300,25 +317,25 @@ var game;
     /*  ╔═╗┬─┐┌─┐┌─┐┌┬┐┬┌─┐┌┐┌  ┌┬┐┌─┐┌┬┐┬ ┬┌─┐┌┬┐┌─┐
         ║  ├┬┘├┤ ├─┤ │ ││ ││││  │││├┤  │ ├─┤│ │ ││└─┐
         ╚═╝┴└─└─┘┴ ┴ ┴ ┴└─┘┘└┘  ┴ ┴└─┘ ┴ ┴ ┴└─┘─┴┘└─┘   */
-    p.createTestEnemy = function() {
-        var dice = Math.random();
-        if(dice < 0.7) {
-            var skin = this.imgEnemyMundane[Math.floor(Math.random()*this.imgEnemyMundane.length)].clone();
-            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
-            var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(new Enemy(this, 'Mundane', rigid));
-        } else if(dice < 0.9) {
-            var skin = this.imgEnemyFolder.clone();
-            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 5 });
-            var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(new Enemy(this, 'Folder', rigid));
-        } else {
-            var skin = this.aniEnemyInbox.clone();
-            var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 45 });
-            var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
-            this.testEnemies.push(new Enemy(this, 'Inbox', rigid));
-        }
-    };
+    // p.createTestEnemy = function() {
+    //     var dice = Math.random();
+    //     if(dice < 0.7) {
+    //         var skin = this.imgEnemy['Mundane'][Math.floor(Math.random()*this.imgEnemyMundane.length)].clone();
+    //         var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0 });
+    //         var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+    //         this.enemies.push(new GameObject(this, 'Mundane', rigid));
+    //     } else if(dice < 0.9) {
+    //         var skin = this.imgEnemy['Folder'].clone();
+    //         var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 5 });
+    //         var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+    //         this.enemies.push(new GameObject(this, 'Folder', rigid));
+    //     } else {
+    //         var skin = this.aniEnemyInbox.clone();
+    //         var body = this.createCircleObject(skin, { x: Math.random()*this.canvas.width, y: -this.canvas.height*0.1, index: 0, density: 45 });
+    //         var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+    //         this.enemies.push(new GameObject(this, 'Inbox', rigid));
+    //     }
+    // };
 
     p.createTestPlayer = function() {
         var skin = this.aniPlayer;
@@ -382,10 +399,12 @@ window.onload = function() {
 
 window.onblur = function() {
     game.box2d.pauseResume(true);
+    game.pause();
 };
 
 window.onfocus = function() {
     game.box2d.pauseResume(false);
+    game.resume();
 };
 
 // window.onresize = function() {
