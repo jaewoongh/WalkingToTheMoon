@@ -43,7 +43,7 @@
                     else if(dice < 0.9) that.createEnemy('Folder');
                     else if(dice < 1.0) that.createEnemy('Inbox');
                 }
-            }
+            },
         };
     };
 

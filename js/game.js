@@ -116,6 +116,14 @@ var game;
         // Initialize Stage data
         this.stages = new GameStage(this);
 
+        // Test data
+        this.stepsLeft = 1000;
+        this.gameScore = 0;
+        this.distanceWalked = 0;
+        this.distanceToCheckpoint = 3500;
+        this.distancePerStep = 5;
+        this.ticksPerStep = 5;
+
         // Game variables
         this.enemies = [];
     };
@@ -197,26 +205,58 @@ var game;
         ║  │ ││ │├─┘
         ╩═╝└─┘└─┘┴      */
     p.onTick = function() {
-    	if(this.paused === false) {
-	        switch(this.gamePhase['phase']) {
-	            case 'INIT':
-	                this.testStage.addChild(this.bgTitle);
-	                this.gamePhase['phase'] = 'TITLE';
-	                break;
-	            case 'TITLE':
-	                break;
-	            case 'IN-STAGE':
-	            	this.stages[this.gamePhase['stage']].loop();
-	                // this.doYourJobEnemies();
-	                // this.removeOffBoundaries(this.enemies);
-	                // this.box2d.update();
+        if(this.paused === false) {
+            switch(this.gamePhase['phase']) {
+                case 'INIT':
+                    this.testStage.addChild(this.bgTitle);
+                    this.gamePhase['phase'] = 'TITLE';
+                    break;
+                case 'TITLE':
+                    break;
+                case 'IN-STAGE':
+                    // Run stage
+                    this.stages[this.gamePhase['stage']].loop();
 
-	                // if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
-	                //     this.createTestEnemy();
-	                // }
-	                break;
-	        }
-    	}
+                    // Update numbers
+                    if(createjs.Ticker.getTicks() % this.ticksPerStep == this.ticksPerStep-1) {
+                        this.distanceWalked += this.distancePerStep;
+                        this.stepsLeft--;
+                        if(this.distanceWalked >= this.distanceToCheckpoint) {
+                            this.distanceWalked = this.distanceToCheckpoint;
+                            var font = 'bold ' + 96 * this.scale + 'px Helvetica';
+                            this.textGameover = new createjs.Text('STAGE CLEAR', font, '#000000');
+                            this.textGameover.textAlign = 'center';
+                            this.textGameover.x = this.canvas.width*0.5;
+                            this.textGameover.y = this.canvas.height*0.5;
+                            this.testStage.addChild(this.textGameover);
+                            this.pause();
+                        } else if(this.stepsLeft <= 0) {
+                            this.stepsLeft = 0;
+                            var font = 'bold ' + 96 * this.scale + 'px Helvetica';
+                            this.textGameover = new createjs.Text('G A M E  O V E R', font, '#000000');
+                            this.textGameover.textAlign = 'center';
+                            this.textGameover.x = this.canvas.width*0.5;
+                            this.textGameover.y = this.canvas.height*0.5;
+                            this.testStage.addChild(this.textGameover);
+                            this.pause();
+                        }
+                    }
+
+                    // Show info
+                    this.textStepCount.text = this.stepsLeft;
+                    this.textScoreCount.text = this.gameScore;
+                    this.textGoalCount.text = this.distanceToCheckpoint - this.distanceWalked;
+
+                    // this.doYourJobEnemies();
+                    // this.removeOffBoundaries(this.enemies);
+                    // this.box2d.update();
+
+                    // if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
+                    //     this.createTestEnemy();
+                    // }
+                    break;
+            }
+        }
         this.testStage.update();
         this.basicGesture.run();
     };
@@ -228,11 +268,11 @@ var game;
     };
 
     p.pause = function() {
-    	this.paused = true;
+        this.paused = true;
     };
 
     p.resume = function() {
-    	this.paused = false;
+        this.paused = false;
     };
 
     p.removeOffBoundaries = function(array) {
@@ -265,6 +305,51 @@ var game;
 
                         // Create test player
                         this.createTestPlayer();
+
+                        // Create test texts
+                        this.scoreboard = new createjs.Shape();
+                        this.scoreboard.graphics.beginFill('#FFFFFF').drawRect(0, 0, this.canvas.width, 180*this.scale);
+                        this.testStage.addChild(this.scoreboard);
+
+
+                        var font = 'bold ' + 36 * this.scale + 'px Helvetica';
+                        this.textStep = new createjs.Text('STEP', font, '#444444');
+                        this.textStep.textAlign = 'center';
+                        this.textStep.x = 100 * this.scale;
+                        this.textStep.y = 20 * this.scale;
+                        this.testStage.addChild(this.textStep);
+
+                        this.textScore = new createjs.Text('SCORE', font, '#444444');
+                        this.textScore.textAlign = 'center';
+                        this.textScore.x = 400 * this.scale;
+                        this.textScore.y = 20 * this.scale;
+                        this.testStage.addChild(this.textScore);
+
+                        this.textGoal = new createjs.Text('GOAL', font, '#444444');
+                        this.textGoal.textAlign = 'center';
+                        this.textGoal.x = this.canvas.width - 150 * this.scale;
+                        this.textGoal.y = 20 * this.scale;
+                        this.testStage.addChild(this.textGoal);
+
+                        font = 'bold ' + 72 * this.scale + 'px Helvetica';
+                        this.textStepCount = new createjs.Text('-', font, '#44AA99');
+                        this.textStepCount.textAlign = 'center';
+                        this.textStepCount.x = 100 * this.scale;
+                        this.textStepCount.y = 75 * this.scale;
+                        this.testStage.addChild(this.textStepCount);
+
+                        this.textScoreCount = new createjs.Text('-', font, '#44AA99');
+                        this.textScoreCount.textAlign = 'center';
+                        this.textScoreCount.x = 400 * this.scale;
+                        this.textScoreCount.y = 75 * this.scale;
+                        this.testStage.addChild(this.textScoreCount);
+
+                        this.textGoalCount = new createjs.Text('-', font, '#44AA99');
+                        this.textGoalCount.textAlign = 'center';
+                        this.textGoalCount.x = this.canvas.width - 150 * this.scale;
+                        this.textGoalCount.y = 75 * this.scale;
+                        this.testStage.addChild(this.textGoalCount);
+
                         break;
                     case 'IN-STAGE':
                         var enemy, targetX, targetY;
@@ -275,6 +360,7 @@ var game;
                         if(enemy) {
                             if(enemy.tappable) {
                                 if(enemy.tappable === true) {
+                                    this.gameScore += enemy.point;
                                     enemy.kill();
                                 } else {
                                     enemy.tappable();

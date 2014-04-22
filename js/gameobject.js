@@ -40,6 +40,7 @@
         // Specific behaviors according to its name
         switch(name) {
             case 'Mundane':
+                this.point = 10;
                 this.throwable = true;
                 this.tappable = true;
                 this.chaseOption = {
@@ -47,15 +48,17 @@
                 };
                 break;
             case 'Folder':
+                this.point = 20;
                 this.throwable = true;
                 this.tappable = function() {
                     (function(folder) {
                         var x = folder.getX();
                         var y = folder.getY();
+                        this.gameScore += folder.point;
                         folder.kill();
                         var skin, body, rigid;
                         for(var i = 0; i < 4; i++) {
-                            game.stages.createEnemy('File', { x: x, y: y });
+                            this.stages.createEnemy('File', { x: x, y: y });
                         }
                     }).apply(this.game, [this]);
                 };
@@ -64,6 +67,7 @@
                 };
                 break;
             case 'File':
+                this.point = 5;
                 this.throwable = true;
                 this.tappable = true;
                 this.chaseOption = {
@@ -71,10 +75,12 @@
                 };
                 break;
             case 'Inbox':
+                this.point = 30;
                 this.skin.gotoAndStop(7);
                 this.tappable = function() {
                     this.skin.gotoAndStop(++this.skin.currentFrame);
                     if(this.skin.currentFrame == 0) {
+                        game.gameScore += this.point;
                         this.kill();
                     }
                 };
