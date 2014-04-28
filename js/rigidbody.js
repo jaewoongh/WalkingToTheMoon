@@ -30,7 +30,11 @@
         this.skin = skin;
         this.body = body;
         this.body.RigidBody = this;
-        this.actor = body.GetUserData();
+        try {
+            this.actor = body.GetUserData();
+        } catch(err) {
+            this.actor = {};
+        }
         this.stage = stage;
         this.b2d = b2d;
 
@@ -129,7 +133,7 @@
         ╩ ╩┴┴─┘┴─┘  */
     p.kill = function() {
         this.stage.removeChild(this.skin);
-        this.b2d.kill(this);
+        if(this['b2d']) this.b2d.kill(this);
     };
 
     scope.RigidBody = RigidBody;

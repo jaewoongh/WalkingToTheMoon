@@ -50,6 +50,9 @@ var game;
     // Puff effect for dying enemies
     var ANI_EFFECT_PUFF = ['./assets/images/enemies/puff.png'];
 
+    // Props
+    var ANI_PROP_CLOUD = ['./assets/images/backgrounds/cloud.png'];
+
     // Sprite sheet for test player
     var ANI_PLAYER = ['./assets/images/players/charles.png'];
 
@@ -61,6 +64,7 @@ var game;
         ANI_ENEMY_FOLDER,
         ANI_ENEMY_INBOX,
         ANI_EFFECT_PUFF,
+        ANI_PROP_CLOUD,
         ANI_PLAYER);
 
 
@@ -128,6 +132,7 @@ var game;
         this.allGameObjects = [
             this.enemies
         ];
+        this.props = [];
     };
 
 
@@ -204,8 +209,23 @@ var game;
                 eff: { frames: [0, 1, 2, 3, 4], speed: 0.5 }
             }
         });
-        this.effects = [];
-        this.effects['Puff'] = new createjs.Sprite(SPR_EFFECT_PUFF);
+        this.imgEffect = [];
+        this.imgEffect['Puff'] = new createjs.Sprite(SPR_EFFECT_PUFF);
+
+        // Cloud prop
+        var SPR_PROP_CLOUD = new createjs.SpriteSheet({
+            images: [this.assets[ANI_PROP_CLOUD]],
+            frames: {
+                height: 134,
+                width: 258,
+                count: 5
+            },
+            animations: {
+                kind: { frames: [0, 1, 2, 3, 4] }
+            }
+        });
+        this.imgProp = [];
+        this.imgProp['Cloud'] = new createjs.Sprite(SPR_PROP_CLOUD);
 
         // Assign sprite for a player
         var SPR_PLAYER = new createjs.SpriteSheet({
@@ -245,6 +265,7 @@ var game;
     p.onTick = function() {
         this.ticks = createjs.Ticker.getTicks();
         this.tickObjCounter = 0;
+        this.fps = createjs.Ticker.getMeasuredFPS();
         if(this.paused === false) {
             switch(this.gamePhase['phase']) {
                 case 'INIT':
@@ -324,6 +345,12 @@ var game;
     p.doYourJobEnemies = function() {
         for(var key in this.enemies) {
             this.enemies[key].doYourJob(this.testPlayer);
+        }
+    };
+
+    p.scrollProps = function() {
+        for(var i = 0; i < this.props.length; i++) {
+            this.props[i].skin.y += this.props[i].scrollSpeed * this.testPlayer.dps * 2;
         }
     };
 

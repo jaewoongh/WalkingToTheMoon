@@ -23,6 +23,7 @@
         ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
     p.initialize = function(game, name, rigid) {
         this.timeBorn = Date.now();
+        this.ticksBorn = game.ticks;
         this.id = Date.now().toString() + game.ticks.toString() + (game.tickObjCounter++).toString() + (parseInt(Math.random()*100)).toString();
         this.game = game;
         this.name = name;
@@ -61,7 +62,7 @@
                     this.chase(player, {
                         uniformForce: { force: 20 * this.game.scale }
                     });
-                    if(!this['popped'] && Date.now() - this.timeBorn > 6000) {
+                    if(!this['popped'] && this.game.ticks - this.ticksBorn > 200) {
                         this.skin.addEventListener('animationend', function(evt) {
                             this.skin.gotoAndStop(3);
                         }.bind(this));
@@ -102,6 +103,9 @@
                     });
                 };
                 this.killEffect = 'Puff';
+                break;
+            case 'Cloud':
+                this.scrollSpeed = Math.random()*0.4 + 0.8;
                 break;
         }
     };
@@ -147,17 +151,19 @@
             }
         }
 
-        var eff = this.game.effects[this.killEffect].clone();
-        eff.x = this.rigid.getX();
-        eff.y = this.rigid.getY();
-        eff.regX = eff.getBounds().width * 0.5;
-        eff.regY = eff.getBounds().height * 0.5;
-        eff.scaleX = eff.scaleY = this.rigid.skin.scaleX * (this.rigid.width > this.rigid.height ? this.rigid.width / eff.getBounds().width : this.rigid.height / eff.getBounds().height) * 2;
-        eff.addEventListener('animationend', function() {
-            this.game.testStage.removeChild(eff);
-        });
-        this.game.testStage.addChild(eff);
-        eff.gotoAndPlay('eff');
+        if(this['killEffect']) {
+            var eff = this.game.imgEffect[this.killEffect].clone();
+            eff.x = this.rigid.getX();
+            eff.y = this.rigid.getY();
+            eff.regX = eff.getBounds().width * 0.5;
+            eff.regY = eff.getBounds().height * 0.5;
+            eff.scaleX = eff.scaleY = this.rigid.skin.scaleX * (this.rigid.width > this.rigid.height ? this.rigid.width / eff.getBounds().width : this.rigid.height / eff.getBounds().height) * 2;
+            eff.addEventListener('animationend', function() {
+                this.game.testStage.removeChild(eff);
+            });
+            this.game.testStage.addChild(eff);
+            eff.gotoAndPlay('eff');
+        }
         this.rigid.kill();
     };
 
