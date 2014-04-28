@@ -31,7 +31,7 @@
     ╚═╝ ┴ ┴ ┴└─┘└─┘  ═╩╝┴ ┴ ┴ ┴ ┴   */
     p.setStages = function() {
         var that = this;
-        this['test'] = {
+        this['test-1'] = {
             defaultDPS: 7,  // Distance per step
             defaultTPS: 10, // Tick per step
             stageLength: 500*7,
@@ -51,6 +51,36 @@
                     if     (dice < 0.7) that.createEnemy('Mundane');
                     else if(dice < 0.9) that.createEnemy('Folder');
                     else if(dice < 1.0) that.createEnemy('Inbox');
+                }
+                interval = Math.random() * 0.2 + 0.2;
+                if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
+                    that.createProp('Cloud', {spriteNumber: parseInt(Math.random() * 5)});
+                }
+            },
+
+            nextStage: 'test-2'
+        };
+
+        this['test-2'] = {
+            defaultDPS: 7,  // Distance per step
+            defaultTPS: 10, // Tick per step
+            stageLength: 200*7,
+
+            testWelcomePhrase: 'Last test!',
+
+            loop: function() {
+                that.game.doYourJobEnemies();
+                that.game.removeOffBoundaries(that.game.enemies);
+                that.game.scrollProps();
+                that.game.removeOffBoundaries(that.game.props);
+                that.game.box2d.update();
+                that.game.dragPlayer();
+                var interval = Math.random() * 0.2 + 0.2;
+                if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
+                    var dice = Math.random();
+                    if     (dice < 0.85) that.createEnemy('Mundane');
+                    else if(dice < 0.90) that.createEnemy('Folder');
+                    else if(dice < 1.00) that.createEnemy('Inbox');
                 }
                 interval = Math.random() * 0.2 + 0.2;
                 if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
@@ -143,7 +173,7 @@
                 }
             },
 
-            nextStage: 'test'
+            nextStage: 'test-1'
         };
     };
 
