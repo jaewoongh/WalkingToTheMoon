@@ -33,7 +33,7 @@
         var that = this;
         this['test'] = {
             defaultDPS: 7,  // Distance per step
-            defaultTPS: 20, // Tick per step
+            defaultTPS: 10, // Tick per step
             stageLength: 500*7,
 
             testWelcomePhrase: 'Enjoy :^)',
@@ -60,8 +60,8 @@
 
         this['tutorial-1'] = {
             defaultDPS: 5,  // Distance per step
-            defaultTPS: 20, // Tick per step
-            stageLength: 30*5,
+            defaultTPS: 10, // Tick per step
+            stageLength: 60*5,
 
             testWelcomePhrase: 'Tap or swipe',
 
@@ -87,8 +87,8 @@
 
         this['tutorial-2'] = {
             defaultDPS: 5,  // Distance per step
-            defaultTPS: 20, // Tick per step
-            stageLength: 40*5,
+            defaultTPS: 10, // Tick per step
+            stageLength: 80*5,
 
             testWelcomePhrase: 'Tap ASAP',
 
@@ -115,8 +115,8 @@
 
         this['tutorial-3'] = {
             defaultDPS: 5,  // Distance per step
-            defaultTPS: 20, // Tick per step
-            stageLength: 50*5,
+            defaultTPS: 10, // Tick per step
+            stageLength: 100*5,
 
             testWelcomePhrase: 'Tap tap tap',
 

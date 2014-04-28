@@ -60,9 +60,9 @@
                 this.tappable = true;
                 this.doYourJob = function(player) {
                     this.chase(player, {
-                        uniformForce: { force: 20 * this.game.scale }
+                        uniformForce: { force: 20*this.game.FPScomp * this.game.scale }
                     });
-                    if(!this['popped'] && this.game.ticks - this.ticksBorn > 200) {
+                    if(!this['popped'] && this.game.ticks - this.ticksBorn > 200 && this.getY() > this.game.canvas.height*0.15) {
                         this.skin.addEventListener('animationend', function(evt) {
                             this.skin.gotoAndStop(3);
                         }.bind(this));

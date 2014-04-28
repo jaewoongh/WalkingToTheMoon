@@ -44,7 +44,7 @@
 
         // Important Box2d scale and speed variables
         this.SCALE = option['SCALE'] || 30;
-        this.STEP = option['STEP'] || 20;
+        this.STEP = option['STEP'] || 30;
         this.TIMESTEP = 1 / this.STEP;
 
         // Global-ish variables

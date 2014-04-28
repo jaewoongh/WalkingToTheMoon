@@ -252,8 +252,9 @@ var game;
         this.gamePhase['phase'] = 'INIT';
 
         // Set Ticker
+        this.targetFPS = 30;
         createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
-        createjs.Ticker.setFPS(30);
+        createjs.Ticker.setFPS(this.targetFPS);
         this.paused = false;
         createjs.Ticker.addEventListener('tick', this.onTick.bind(this));
     };
@@ -266,6 +267,7 @@ var game;
         this.ticks = createjs.Ticker.getTicks();
         this.tickObjCounter = 0;
         this.fps = createjs.Ticker.getMeasuredFPS();
+        this.FPScomp = this.targetFPS / this.fps;
         if(this.paused === false) {
             switch(this.gamePhase['phase']) {
                 case 'INIT':
