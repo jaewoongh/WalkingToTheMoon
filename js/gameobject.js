@@ -23,7 +23,7 @@
         ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
     p.initialize = function(game, name, rigid) {
         this.timeBorn = Date.now();
-        this.id = Date.now().toString() + game.ticks.toString() + (game.tickObjCounter++).toString() + (Math.random()*100).toString();
+        this.id = Date.now().toString() + game.ticks.toString() + (game.tickObjCounter++).toString() + (parseInt(Math.random()*100)).toString();
         this.game = game;
         this.name = name;
         this.rigid = rigid;
@@ -142,7 +142,7 @@
     p.kill = function() {
         for(var i = 0; i < this.game.allGameObjects.length; i++) {
             if(this.game.allGameObjects[i][this.id]) {
-                delete this.game.enemies[this.id];
+                delete this.game.allGameObjects[i][this.id];
                 break;
             }
         }

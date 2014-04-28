@@ -336,8 +336,8 @@ var game;
     };
 
     p.removeOffBoundaries = function(array) {
-        for(var i = array.length-1; i >= 0; i--) {
-            var one = array[i];
+        for(var key in array) {
+            var one = array[key];
             if (one.getX() + one.width*0.5 < -this.canvas.width*0.3 ||
                 one.getX() - one.width*0.5 >= this.canvas.width*1.3 ||
                 one.getY() + one.height*0.5 < -this.canvas.height*0.3 ||
