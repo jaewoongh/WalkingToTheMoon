@@ -44,9 +44,11 @@ var game;
         './assets/images/enemies/mundane3.png'
     ];
     var IMG_ENEMY_FILE = ['./assets/images/enemies/file.png'];
-    var IMG_ENEMY_FOLDER = ['./assets/images/enemies/folder.png'];
-
+    var ANI_ENEMY_FOLDER = ['./assets/images/enemies/folder.png'];
     var ANI_ENEMY_INBOX = ['./assets/images/enemies/inbox.png'];
+
+    // Puff effect for dying enemies
+    var ANI_EFFECT_PUFF = ['./assets/images/enemies/puff.png'];
 
     // Sprite sheet for test player
     var ANI_PLAYER = ['./assets/images/players/charles.png'];
@@ -56,8 +58,9 @@ var game;
         BG_TITLE,
         IMG_ENEMY_MUNDANE,
         IMG_ENEMY_FILE,
-        IMG_ENEMY_FOLDER,
+        ANI_ENEMY_FOLDER,
         ANI_ENEMY_INBOX,
+        ANI_EFFECT_PUFF,
         ANI_PLAYER);
 
 
@@ -143,7 +146,7 @@ var game;
         this.bgTitle.regY = this.bgTitle.image.height * 0.5;
         this.bgTitle.scaleX = this.bgTitle.scaleY = this.scale;
 
-        // Assign images for mundane enemies
+        // Mundane enemies
         this.imgEnemy = [];
         this.imgEnemy['Mundane'] = [];
         for(var i = 0; i < IMG_ENEMY_MUNDANE.length; i++) {
@@ -151,11 +154,32 @@ var game;
             this.imgEnemy['Mundane'].push(imgEnemyMundane);
         }
 
-        // Assign images for file and folder enemies
+        // File enemy
         this.imgEnemy['File'] = new createjs.Bitmap(this.assets[IMG_ENEMY_FILE]);
-        this.imgEnemy['Folder'] = new createjs.Bitmap(this.assets[IMG_ENEMY_FOLDER]);
 
-        // Assign images for sprited enemies
+        // Folder enemy
+        var SPR_ENEMY_FOLDER = new createjs.SpriteSheet({
+            images: [this.assets[ANI_ENEMY_FOLDER]],
+            frames: {
+                height: 176,
+                width: 200,
+                count: 4
+            },
+            animations: {
+                burping: {
+                    frames: [0, 1],
+                    speed: 0.3
+                },
+                pop: {
+                    frames: [2, 3],
+                    speed: 0.4
+                }
+            }
+
+        });
+        this.imgEnemy['Folder'] = new createjs.Sprite(SPR_ENEMY_FOLDER);
+
+        // Inbox enemy
         var SPR_ENEMY_INBOX = new createjs.SpriteSheet({
             images: [this.assets[ANI_ENEMY_INBOX]],
             frames: {
@@ -168,6 +192,21 @@ var game;
             }
         });
         this.imgEnemy['Inbox'] = new createjs.Sprite(SPR_ENEMY_INBOX);
+
+        // Puff effect
+        var SPR_EFFECT_PUFF = new createjs.SpriteSheet({
+            images: [this.assets[ANI_EFFECT_PUFF]],
+            frames: {
+                height: 170,
+                width: 150,
+                count: 5
+            },
+            animations: {
+                eff: { frames: [0, 1, 2, 3, 4], speed: 0.5 }
+            }
+        });
+        this.effects = [];
+        this.effects['Puff'] = new createjs.Sprite(SPR_EFFECT_PUFF);
 
         // Assign sprite for a player
         var SPR_PLAYER = new createjs.SpriteSheet({

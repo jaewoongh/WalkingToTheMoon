@@ -46,25 +46,36 @@
                 this.chaseOption = {
                     uniformForce: { force: 10 * game.scale }
                 };
+                this.killEffect = 'Puff';
                 break;
             case 'Folder':
                 this.point = 20;
+                this.skin.gotoAndPlay('burping');
                 this.throwable = true;
                 this.tappable = function() {
                     (function(folder) {
-                        var x = folder.getX();
-                        var y = folder.getY();
-                        this.gameScore += folder.point;
-                        folder.kill();
-                        var skin, body, rigid;
-                        for(var i = 0; i < 4; i++) {
-                            this.stages.createEnemy('File', { x: x, y: y });
+                        if(folder['popped']) {
+                            folder.kill();
+                        } else {
+                            var x = folder.getX();
+                            var y = folder.getY();
+                            this.gameScore += folder.point;
+                            folder.skin.addEventListener('animationend', function(evt) {
+                                folder.skin.gotoAndStop(3);
+                            });
+                            folder.skin.gotoAndPlay('pop');
+                            var skin, body, rigid;
+                            for(var i = 0; i < 4; i++) {
+                                this.stages.createEnemy('File', { x: x, y: y+10*this.scale });
+                            }
+                            folder['popped'] = true;
                         }
                     }).apply(this.game, [this]);
                 };
                 this.chaseOption = {
                     uniformForce: { force: 20 * game.scale }
                 };
+                this.killEffect = 'Puff';
                 break;
             case 'File':
                 this.point = 5;
@@ -73,6 +84,7 @@
                 this.chaseOption = {
                     uniformForce: { force: 10 * game.scale }
                 };
+                this.killEffect = 'Puff';
                 break;
             case 'Inbox':
                 this.point = 30;
@@ -87,6 +99,7 @@
                 this.chaseOption = {
                     uniformForce: { force: 200 * game.scale }
                 };
+                this.killEffect = 'Puff';
                 break;
         }
     };
@@ -125,6 +138,17 @@
         ╠╩╗││  │  
         ╩ ╩┴┴─┘┴─┘  */
     p.kill = function() {
+        var eff = game.effects[this.killEffect].clone();
+        eff.x = this.rigid.getX();
+        eff.y = this.rigid.getY();
+        eff.regX = eff.getBounds().width * 0.5;
+        eff.regY = eff.getBounds().height * 0.5;
+        eff.scaleX = eff.scaleY = this.rigid.skin.scaleX * (this.rigid.width > this.rigid.height ? this.rigid.width / eff.getBounds().width : this.rigid.height / eff.getBounds().height) * 2;
+        eff.addEventListener('animationend', function() {
+            game.testStage.removeChild(eff);
+        });
+        game.testStage.addChild(eff);
+        eff.gotoAndPlay('eff');
         this.rigid.kill();
     };
 

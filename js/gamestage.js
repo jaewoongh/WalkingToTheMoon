@@ -70,7 +70,7 @@
                 var body = game.createCircleObject(skin, {
                     x: option['x'] || Math.random()*game.canvas.width,
                     y: option['y'] || -game.canvas.height*0.1,
-                    density: 10,
+                    density: 8,
                     index: 0
                 });
                 var rigid = new RigidBody(skin, body).on(game.testStage).with(game.box2d);
