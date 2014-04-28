@@ -242,6 +242,7 @@ var game;
                 },
                 hit: {
                     frames: [4],
+                    speed: 0.2
                 }
             }
         });
@@ -341,7 +342,7 @@ var game;
 
                     this.textStepCount.text = this.globalSteps;
                     this.textScoreCount.text = this.gameScore;
-                    this.textGoalCount.text = currentStage.stageLength - this.testPlayer.distanceWalked;
+                    this.textGoalCount.text = parseInt(currentStage.stageLength - this.testPlayer.distanceWalked);
                     break;
             }
         }
@@ -371,6 +372,7 @@ var game;
 
     p.removeOffBoundaries = function(array) {
         for(var key in array) {
+            if(!array.hasOwnProperty(key)) continue;
             var one = array[key];
             if (one.getX() + one.width*0.5 < -this.canvas.width*0.3 ||
                 one.getX() - one.width*0.5 >= this.canvas.width*1.3 ||
@@ -379,6 +381,17 @@ var game;
                 one.kill();
             }
         }
+    };
+
+    p.dragPlayer = function() {
+        var numDragger = 0;
+        for(var dragger in this.testPlayer.dragger) {
+            if(this.testPlayer.dragger.hasOwnProperty(dragger)) {
+                numDragger++;
+            }
+        }
+        this.testPlayer.dps += (this.stages[this.gamePhase['stage']].defaultDPS - this.testPlayer.dps) * 0.1;
+        this.testPlayer.dps -= this.stages[this.gamePhase['stage']].defaultDPS * 0.01 * numDragger;
     };
 
 
@@ -550,6 +563,7 @@ var game;
         });
         var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
         this.testPlayer = new GameObject(this, 'player', rigid);
+        this.testPlayer['dragger'] = [];
         skin.gotoAndPlay('walk');
     };
 

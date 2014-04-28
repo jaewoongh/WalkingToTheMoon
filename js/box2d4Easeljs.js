@@ -44,7 +44,7 @@
 
         // Important Box2d scale and speed variables
         this.SCALE = option['SCALE'] || 30;
-        this.STEP = option['STEP'] || 30;
+        this.STEP = option['STEP'] || 20;
         this.TIMESTEP = 1 / this.STEP;
 
         // Global-ish variables
@@ -181,6 +181,29 @@
     p.pickEnemy = function(x, y, size) {
         var rigid = this.pickRigidBody(x, y, size);
         if(rigid) return rigid['enemy'];
+    };
+
+    p.addContactListener = function(callbacks) {
+        var listener = new Box2D.Dynamics.b2ContactListener;
+        if(callbacks.BeginContact) {
+            listener.BeginContact = function(contact) {
+            callbacks.BeginContact(contact.GetFixtureA().GetBody()['RigidBody'],
+                                   contact.GetFixtureB().GetBody()['RigidBody']);
+            };
+        }
+        if(callbacks.EndContact) {
+            listener.EndContact = function(contact) {
+            callbacks.EndContact(contact.GetFixtureA().GetBody()['RigidBody'],
+                                 contact.GetFixtureB().GetBody()['RigidBody']);
+            };
+        }
+        if(callbacks.PostSolve) {
+            listener.PostSolve = function(contact) {
+            callbacks.PostSolve(contact.GetFixtureA().GetBody()['RigidBody'],
+                                contact.GetFixtureB().GetBody()['RigidBody']);
+            };
+        }
+        this.world.SetContactListener(listener);
     };
 
 

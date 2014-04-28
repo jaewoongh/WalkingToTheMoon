@@ -127,6 +127,10 @@
         return this;
     };
 
+    p.addContactListener = function(callbacks) {
+        if(this['b2d']) this.b2d.addContactListener(callbacks);
+    };
+
 
     /*  ╦╔═┬┬  ┬  
         ╠╩╗││  │  

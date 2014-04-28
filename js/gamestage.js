@@ -44,6 +44,7 @@
                 that.game.scrollProps();
                 that.game.removeOffBoundaries(that.game.props);
                 that.game.box2d.update();
+                that.game.dragPlayer();
                 var interval = Math.random() * 0.4 + 0.5;
                 if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
                     var dice = Math.random();
@@ -71,6 +72,7 @@
                 that.game.scrollProps();
                 that.game.removeOffBoundaries(that.game.props);
                 that.game.box2d.update();
+                that.game.dragPlayer();
                 var interval = Math.random() * 0.4 + 1;
                 if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
                     var dice = Math.random();
@@ -98,6 +100,7 @@
                 that.game.scrollProps();
                 that.game.removeOffBoundaries(that.game.props);
                 that.game.box2d.update();
+                that.game.dragPlayer();
                 var interval = Math.random() * 0.4 + 1;
                 if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
                     var dice = Math.random();
@@ -126,6 +129,7 @@
                 that.game.scrollProps();
                 that.game.removeOffBoundaries(that.game.props);
                 that.game.box2d.update();
+                that.game.dragPlayer();
                 var interval = Math.random() * 0.4 + 1;
                 if(that.game.ticks % Math.round(that.game.fps*interval) == 0) {
                     var dice = Math.random();
@@ -221,6 +225,10 @@
         if(option['spriteNumber']) prop.gotoAndStop(option['spriteNumber']);
         this.game.testStage.addChildAt(prop, 0);
         this.game.props.push(new GameObject(this.game, 'Cloud', new RigidBody(prop, {}).on(this.game.testStage)));
+        var propDup = prop.clone();
+        propDup.y = this.game.canvas.height - prop.y;
+        this.game.testStage.addChildAt(propDup, 0);
+        this.game.props.push(new GameObject(this.game, 'Cloud', new RigidBody(propDup, {}).on(this.game.testStage)));
     };
 
     scope.GameStage = GameStage;

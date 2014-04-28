@@ -28,6 +28,7 @@
         this.game = game;
         this.name = name;
         this.rigid = rigid;
+        this.rigid['gameObject'] = this;
         rigid.enemy = this;
 
         // Aliases
@@ -39,6 +40,39 @@
         this.getAngle = function() { return this.rigid.getAngle(); };
         this.width = this.rigid.width;
         this.height = this.rigid.height;
+
+        // Common collision bahaviors
+        this.addContactListener({
+            BeginContact: function(rigidA, rigidB) {
+                if(rigidA.gameObject && rigidB.gameObject) {
+                    if(rigidA.gameObject.name == 'player') {
+                        rigidA.gameObject.skin.addEventListener('animationend', function() {
+                            this.gotoAndPlay('walk');
+                            this.removeEventListener('animationend');
+                        }.bind(rigidA.gameObject.skin));
+                        rigidA.gameObject.skin.gotoAndPlay('hit');
+                    } else if(rigidB.gameObject.name == 'player') {
+                        rigidB.gameObject.skin.addEventListener('animationend', function() {
+                            this.gotoAndPlay('walk');
+                            this.removeEventListener('animationend');
+                        }.bind(rigidB.gameObject.skin));
+                        rigidB.gameObject.skin.gotoAndPlay('hit');
+                    }
+                }
+            }.bind(this.game),
+            EndContact: function(rigidA, rigidB) {
+                delete this.testPlayer.dragger[rigidA.gameObject.id];
+                delete this.testPlayer.dragger[rigidB.gameObject.id];
+            }.bind(this.game),
+            PostSolve: function(rigidA, rigidB) {
+                if(rigidA.gameObject.name == 'player' || this.testPlayer.dragger[rigidA.gameObject.id]) {
+                    this.testPlayer.dragger[rigidB.gameObject.id] = true;
+                }
+                if(rigidB.gameObject.name == 'player' || this.testPlayer.dragger[rigidB.gameObject.id]) {
+                    this.testPlayer.dragger[rigidA.gameObject.id] = true;
+                }
+            }.bind(this.game)
+        });
 
         // Specific behaviors according to its name
         switch(name) {
@@ -137,6 +171,10 @@
     p.chase = function(target, option) {
         this.rigid.chase(target, option);
         return this;
+    };
+
+    p.addContactListener = function(callbacks) {
+        this.rigid.addContactListener(callbacks);
     };
 
 
