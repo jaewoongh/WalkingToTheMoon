@@ -332,6 +332,11 @@ var game;
                     }
 
                     // Show info
+                    this.stepMeter.graphics.clear();
+                    this.stepMeter.graphics.beginFill('rgba(255,255,0,0.5)').drawRect(0, 0, 40*this.scale, Math.map2(this.globalSteps, 0, 1000, 0, this.canvas.height));
+                    this.goalMeter.graphics.clear();
+                    this.goalMeter.graphics.beginFill('rgba(0,255,255,0.5)').drawRect(this.canvas.width-40*this.scale, 0, 40*this.scale, Math.map2(currentStage.stageLength - this.testPlayer.distanceWalked, 0, currentStage.stageLength, 0, this.canvas.height));
+
                     this.textStepCount.text = this.globalSteps;
                     this.textScoreCount.text = this.gameScore;
                     this.textGoalCount.text = currentStage.stageLength - this.testPlayer.distanceWalked;
@@ -410,15 +415,14 @@ var game;
                         }.bind(this), 2500);
 
                         // Create test texts
-                        this.scoreboard = new createjs.Shape();
-                        this.scoreboard.graphics.beginFill('#FFFFFF').drawRect(0, 0, this.canvas.width, 180*this.scale);
-                        this.testStage.addChild(this.scoreboard);
-
+                        // this.scoreboard = new createjs.Shape();
+                        // this.scoreboard.graphics.beginFill('#FFFFFF').drawRect(0, 0, this.canvas.width, 180*this.scale);
+                        // this.testStage.addChild(this.scoreboard);
 
                         var font = 'bold ' + 36 * this.scale + 'px Helvetica';
                         this.textStep = new createjs.Text('STEP', font, '#444444');
                         this.textStep.textAlign = 'center';
-                        this.textStep.x = 100 * this.scale;
+                        this.textStep.x = 150 * this.scale;
                         this.textStep.y = 20 * this.scale;
                         this.testStage.addChild(this.textStep);
 
@@ -435,23 +439,29 @@ var game;
                         this.testStage.addChild(this.textGoal);
 
                         font = 'bold ' + 72 * this.scale + 'px Helvetica';
-                        this.textStepCount = new createjs.Text('-', font, '#44AA99');
+                        this.textStepCount = new createjs.Text('-', font, '#FFFFFF');
                         this.textStepCount.textAlign = 'center';
-                        this.textStepCount.x = 100 * this.scale;
+                        this.textStepCount.x = 150 * this.scale;
                         this.textStepCount.y = 75 * this.scale;
                         this.testStage.addChild(this.textStepCount);
 
-                        this.textScoreCount = new createjs.Text('-', font, '#44AA99');
+                        this.stepMeter = new createjs.Shape();
+                        this.testStage.addChildAt(this.stepMeter, 0);
+
+                        this.textScoreCount = new createjs.Text('-', font, '#FFFFFF');
                         this.textScoreCount.textAlign = 'center';
                         this.textScoreCount.x = 400 * this.scale;
                         this.textScoreCount.y = 75 * this.scale;
                         this.testStage.addChild(this.textScoreCount);
 
-                        this.textGoalCount = new createjs.Text('-', font, '#44AA99');
+                        this.textGoalCount = new createjs.Text('-', font, '#FFFFFF');
                         this.textGoalCount.textAlign = 'center';
                         this.textGoalCount.x = this.canvas.width - 150 * this.scale;
                         this.textGoalCount.y = 75 * this.scale;
                         this.testStage.addChild(this.textGoalCount);
+
+                        this.goalMeter = new createjs.Shape();
+                        this.testStage.addChildAt(this.goalMeter, 0);
 
                         break;
                     case 'IN-STAGE':
