@@ -184,6 +184,7 @@
     p.kill = function() {
         for(var i = 0; i < this.game.allGameObjects.length; i++) {
             if(this.game.allGameObjects[i][this.id]) {
+                this.game.allGameObjects[i][this.id] = null;
                 delete this.game.allGameObjects[i][this.id];
                 break;
             }
