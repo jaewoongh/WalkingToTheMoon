@@ -128,6 +128,7 @@
         ╠╩╗││  │  
         ╩ ╩┴┴─┘┴─┘  */
     p.kill = function() {
+        this.stage.removeChild(this.skin);
         this.b2d.kill(this);
     };
 

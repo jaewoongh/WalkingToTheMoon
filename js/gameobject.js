@@ -22,6 +22,8 @@
         ║││││ │ │├─┤│  │┌─┘├┤ 
         ╩┘└┘┴ ┴ ┴┴ ┴┴─┘┴└─┘└─┘  */
     p.initialize = function(game, name, rigid) {
+        this.timeBorn = Date.now();
+        this.id = Date.now().toString() + game.ticks.toString() + (game.tickObjCounter++).toString() + (Math.random()*100).toString();
         this.game = game;
         this.name = name;
         this.rigid = rigid;
@@ -43,8 +45,10 @@
                 this.point = 10;
                 this.throwable = true;
                 this.tappable = true;
-                this.chaseOption = {
-                    uniformForce: { force: 10 * game.scale }
+                this.doYourJob = function(player) {
+                    this.chase(player, {
+                        uniformForce: { force: 10 * this.game.scale }
+                    });
                 };
                 this.killEffect = 'Puff';
                 break;
@@ -52,28 +56,22 @@
                 this.point = 20;
                 this.skin.gotoAndPlay('burping');
                 this.throwable = true;
-                this.tappable = function() {
-                    (function(folder) {
-                        if(folder['popped']) {
-                            folder.kill();
-                        } else {
-                            var x = folder.getX();
-                            var y = folder.getY();
-                            this.gameScore += folder.point;
-                            folder.skin.addEventListener('animationend', function(evt) {
-                                folder.skin.gotoAndStop(3);
-                            });
-                            folder.skin.gotoAndPlay('pop');
-                            var skin, body, rigid;
-                            for(var i = 0; i < 4; i++) {
-                                this.stages.createEnemy('File', { x: x, y: y+10*this.scale });
-                            }
-                            folder['popped'] = true;
+                this.tappable = true;
+                this.doYourJob = function(player) {
+                    this.chase(player, {
+                        uniformForce: { force: 20 * this.game.scale }
+                    });
+                    if(!this['popped'] && Date.now() - this.timeBorn > 8000) {
+                        this.skin.addEventListener('animationend', function(evt) {
+                            this.skin.gotoAndStop(3);
+                        }.bind(this));
+                        this.skin.gotoAndPlay('pop');
+                        var skin, body, rigid;
+                        for(var i = 0; i < 4; i++) {
+                            this.game.stages.createEnemy('File', { x: this.getX(), y: this.getY()+10*this.game.scale });
                         }
-                    }).apply(this.game, [this]);
-                };
-                this.chaseOption = {
-                    uniformForce: { force: 20 * game.scale }
+                        this['popped'] = true;
+                    }
                 };
                 this.killEffect = 'Puff';
                 break;
@@ -81,8 +79,10 @@
                 this.point = 5;
                 this.throwable = true;
                 this.tappable = true;
-                this.chaseOption = {
-                    uniformForce: { force: 10 * game.scale }
+                this.doYourJob = function(player) {
+                    this.chase(player, {
+                        uniformForce: { force: 10 * this.game.scale }
+                    });
                 };
                 this.killEffect = 'Puff';
                 break;
@@ -92,12 +92,14 @@
                 this.tappable = function() {
                     this.skin.gotoAndStop(++this.skin.currentFrame);
                     if(this.skin.currentFrame == 0) {
-                        game.gameScore += this.point;
+                        this.game.gameScore += this.point;
                         this.kill();
                     }
                 };
-                this.chaseOption = {
-                    uniformForce: { force: 200 * game.scale }
+                this.doYourJob = function(player) {
+                    this.chase(player, {
+                        uniformForce: { force: 200 * this.game.scale }
+                    });
                 };
                 this.killEffect = 'Puff';
                 break;
@@ -128,8 +130,8 @@
         return this;
     };
 
-    p.chase = function(target) {
-        this.rigid.chase(target, this.chaseOption);
+    p.chase = function(target, option) {
+        this.rigid.chase(target, option);
         return this;
     };
 
@@ -138,16 +140,23 @@
         ╠╩╗││  │  
         ╩ ╩┴┴─┘┴─┘  */
     p.kill = function() {
-        var eff = game.effects[this.killEffect].clone();
+        for(var i = 0; i < this.game.allGameObjects.length; i++) {
+            if(this.game.allGameObjects[i][this.id]) {
+                delete this.game.enemies[this.id];
+                break;
+            }
+        }
+
+        var eff = this.game.effects[this.killEffect].clone();
         eff.x = this.rigid.getX();
         eff.y = this.rigid.getY();
         eff.regX = eff.getBounds().width * 0.5;
         eff.regY = eff.getBounds().height * 0.5;
         eff.scaleX = eff.scaleY = this.rigid.skin.scaleX * (this.rigid.width > this.rigid.height ? this.rigid.width / eff.getBounds().width : this.rigid.height / eff.getBounds().height) * 2;
         eff.addEventListener('animationend', function() {
-            game.testStage.removeChild(eff);
+            this.game.testStage.removeChild(eff);
         });
-        game.testStage.addChild(eff);
+        this.game.testStage.addChild(eff);
         eff.gotoAndPlay('eff');
         this.rigid.kill();
     };

@@ -62,7 +62,8 @@
                     index: 0
                 });
                 var rigid = new RigidBody(skin, body).on(game.testStage).with(game.box2d);
-                game.enemies.push(new GameObject(game, 'Mundane', rigid));
+                var gameobject = new GameObject(game, 'Mundane', rigid);
+                game.enemies[gameobject.id] = gameobject;
                 break;
 
             case 'Folder':
@@ -74,7 +75,8 @@
                     index: 0
                 });
                 var rigid = new RigidBody(skin, body).on(game.testStage).with(game.box2d);
-                game.enemies.push(new GameObject(game, 'Folder', rigid));
+                var gameobject = new GameObject(game, 'Folder', rigid);
+                game.enemies[gameobject.id] = gameobject;
                 break;
 
             case 'File':
@@ -85,7 +87,8 @@
                     index: 0
                 });
                 var rigid = new RigidBody(skin, body).on(game.testStage).with(game.box2d);
-                game.enemies.push(new GameObject(game, 'File', rigid));
+                var gameobject = new GameObject(game, 'File', rigid);
+                game.enemies[gameobject.id] = gameobject;
                 break;
 
             case 'Inbox':
@@ -97,7 +100,8 @@
                     index: 0
                 });
                 var rigid = new RigidBody(skin, body).on(game.testStage).with(game.box2d);
-                game.enemies.push(new GameObject(game, 'Inbox', rigid));
+                var gameobject = new GameObject(game, 'Inbox', rigid);
+                game.enemies[gameobject.id] = gameobject;
                 break;
         }
     };

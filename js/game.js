@@ -129,6 +129,9 @@ var game;
 
         // Game variables
         this.enemies = [];
+        this.allGameObjects = [
+            this.enemies
+        ];
     };
 
 
@@ -244,6 +247,8 @@ var game;
         ║  │ ││ │├─┘
         ╩═╝└─┘└─┘┴      */
     p.onTick = function() {
+        this.ticks = createjs.Ticker.getTicks();
+        this.tickObjCounter = 0;
         if(this.paused === false) {
             switch(this.gamePhase['phase']) {
                 case 'INIT':
@@ -301,8 +306,8 @@ var game;
     };
 
     p.doYourJobEnemies = function() {
-        for(var i = 0; i < this.enemies.length; i++) {
-            this.enemies[i].chase(this.testPlayer);
+        for(var key in this.enemies) {
+            this.enemies[key].doYourJob(this.testPlayer);
         }
     };
 
