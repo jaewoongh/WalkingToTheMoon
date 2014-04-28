@@ -61,7 +61,7 @@
                     this.chase(player, {
                         uniformForce: { force: 20 * this.game.scale }
                     });
-                    if(!this['popped'] && Date.now() - this.timeBorn > 8000) {
+                    if(!this['popped'] && Date.now() - this.timeBorn > 6000) {
                         this.skin.addEventListener('animationend', function(evt) {
                             this.skin.gotoAndStop(3);
                         }.bind(this));
@@ -81,7 +81,7 @@
                 this.tappable = true;
                 this.doYourJob = function(player) {
                     this.chase(player, {
-                        uniformForce: { force: 10 * this.game.scale }
+                        uniformForce: { force: 5 * this.game.scale }
                     });
                 };
                 this.killEffect = 'Puff';

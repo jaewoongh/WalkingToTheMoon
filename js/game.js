@@ -120,12 +120,8 @@ var game;
         this.stages = new GameStage(this);
 
         // Test data
-        this.stepsLeft = 1000;
+        this.globalSteps = 1000;
         this.gameScore = 0;
-        this.distanceWalked = 0;
-        this.distanceToCheckpoint = 3500;
-        this.distancePerStep = 5;
-        this.ticksPerStep = 5;
 
         // Game variables
         this.enemies = [];
@@ -259,23 +255,51 @@ var game;
                     break;
                 case 'IN-STAGE':
                     // Run stage
-                    this.stages[this.gamePhase['stage']].loop();
+                    var currentStage = this.stages[this.gamePhase['stage']];
+                    currentStage.loop();
 
                     // Update numbers
-                    if(createjs.Ticker.getTicks() % this.ticksPerStep == this.ticksPerStep-1) {
-                        this.distanceWalked += this.distancePerStep;
-                        this.stepsLeft--;
-                        if(this.distanceWalked >= this.distanceToCheckpoint) {
-                            this.distanceWalked = this.distanceToCheckpoint;
+                    if(this.ticks % currentStage['defaultTPS'] == currentStage['defaultTPS'] -1) {
+                        this.testPlayer['distanceWalked'] += this.testPlayer['dps'];
+                        this.testPlayer['stepsWalked']++;
+                        this.globalSteps--;
+
+                        if(this.testPlayer['distanceWalked'] >= currentStage.stageLength) {
+                            // Stage clear
+                            this.testPlayer['distanceWalked'] = currentStage.stageLength;
                             var font = 'bold ' + 96 * this.scale + 'px Helvetica';
                             this.textGameover = new createjs.Text('STAGE CLEAR', font, '#000000');
                             this.textGameover.textAlign = 'center';
                             this.textGameover.x = this.canvas.width*0.5;
                             this.textGameover.y = this.canvas.height*0.5;
                             this.testStage.addChild(this.textGameover);
+
+                            for(var key in this.enemies) {
+                                this.enemies[key].kill();
+                            }
                             this.pause();
-                        } else if(this.stepsLeft <= 0) {
-                            this.stepsLeft = 0;
+                            if(currentStage['nextStage']) {
+                                setTimeout(function() {
+                                    this.testPlayer.init(this.stages[currentStage.nextStage]);
+                                    this.gamePhase['stage'] = currentStage.nextStage;
+
+                                    var font = 'bold ' + 96 * this.scale + 'px Helvetica';
+                                    this.textWelcome = new createjs.Text(this.stages[currentStage.nextStage].testWelcomePhrase, font, '#FFFFFF');
+                                    this.textWelcome.textAlign = 'center';
+                                    this.textWelcome.x = this.canvas.width*0.5;
+                                    this.textWelcome.y = this.canvas.height*0.5;
+                                    this.testStage.addChild(this.textWelcome);
+                                    setTimeout(function() {
+                                        this.testStage.removeChild(this.textWelcome);
+                                    }.bind(this), 2500);
+
+                                    this.resume();
+                                    this.testStage.removeChild(this.textGameover);
+                                }.bind(this), 2000);
+                            }
+                        } else if(this.globalSteps <= 0) {
+                            // Stage failed
+                            this.globalSteps = 0;
                             var font = 'bold ' + 96 * this.scale + 'px Helvetica';
                             this.textGameover = new createjs.Text('G A M E  O V E R', font, '#000000');
                             this.textGameover.textAlign = 'center';
@@ -287,17 +311,9 @@ var game;
                     }
 
                     // Show info
-                    this.textStepCount.text = this.stepsLeft;
+                    this.textStepCount.text = this.globalSteps;
                     this.textScoreCount.text = this.gameScore;
-                    this.textGoalCount.text = this.distanceToCheckpoint - this.distanceWalked;
-
-                    // this.doYourJobEnemies();
-                    // this.removeOffBoundaries(this.enemies);
-                    // this.box2d.update();
-
-                    // if(createjs.Ticker.getTicks() % Math.round(createjs.Ticker.getFPS()*(Math.random()*0.4+0.2)) == 0) {
-                    //     this.createTestEnemy();
-                    // }
+                    this.textGoalCount.text = currentStage.stageLength - this.testPlayer.distanceWalked;
                     break;
             }
         }
@@ -327,7 +343,6 @@ var game;
                 one.getY() + one.height*0.5 < -this.canvas.height*0.3 ||
                 one.getY() - one.height*0.5 >= this.canvas.height*1.3) {
                 one.kill();
-                array.splice(i, 1);
             }
         }
     };
@@ -345,10 +360,27 @@ var game;
                     case 'TITLE':
                         this.testStage.removeChild(this.bgTitle);
                         this.gamePhase['phase'] = 'IN-STAGE';
-                        this.gamePhase['stage'] = 'test';
+                        this.gamePhase['stage'] = 'tutorial-1';
 
                         // Create test player
                         this.createTestPlayer();
+                        this.testPlayer.init = function(stage) {
+                            this['distanceWalked'] = 0;
+                            this['stepsWalked'] = 0;
+                            this['dps'] = stage.defaultDPS;
+                        };
+                        this.testPlayer.init(this.stages['tutorial-1']);
+
+                        // Stage welcome text
+                        var font = 'bold ' + 96 * this.scale + 'px Helvetica';
+                        this.textWelcome = new createjs.Text(this.stages[this.gamePhase['stage']].testWelcomePhrase, font, '#FFFFFF');
+                        this.textWelcome.textAlign = 'center';
+                        this.textWelcome.x = this.canvas.width*0.5;
+                        this.textWelcome.y = this.canvas.height*0.5;
+                        this.testStage.addChild(this.textWelcome);
+                        setTimeout(function() {
+                            this.testStage.removeChild(this.textWelcome);
+                        }.bind(this), 2500);
 
                         // Create test texts
                         this.scoreboard = new createjs.Shape();
@@ -477,7 +509,8 @@ var game;
             radius: skin.spriteSheet.getFrameBounds(0).height * this.scale * 0.3,
             static: true
         });
-        this.testPlayer = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+        var rigid = new RigidBody(skin, body).on(this.testStage).with(this.box2d);
+        this.testPlayer = new GameObject(this, 'player', rigid);
         skin.gotoAndPlay('walk');
     };
 
