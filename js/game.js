@@ -321,7 +321,7 @@ var game;
                                     this.testStage.removeChild(this.textGameover);
                                 }.bind(this), 2000);
                             }
-                        } else if(this.globalSteps <= 0) {
+                        } else if(this.globalSteps <= 0 || this.testPlayer.dps < -10) {
                             // Stage failed
                             this.globalSteps = 0;
                             var font = 'bold ' + 96 * this.scale + 'px Helvetica';
